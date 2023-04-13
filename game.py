@@ -2,6 +2,7 @@ import pygame
 from pygame.math import Vector2
 import constants
 from snake import Snake
+from food import Food
 
 import os
 import time
@@ -33,6 +34,7 @@ class Game:
 
         # Create a Snake object to represent the player
         self.snake = Snake()
+        self.food = Food()
 
     def draw(self):
         """Draw the game objects on the screen"""
@@ -42,6 +44,10 @@ class Game:
 
         # Draw the snake on the screen
         self.snake.draw(display=self.display)
+
+        self.food.draw(display=self.display)
+
+        pygame.draw.rect(self.display, colors['powderblue'][0:3], pygame.Rect(500, 0, constants.BLOCK, constants.BLOCK))
 
         # Update the display
         pygame.display.flip()
@@ -68,16 +74,33 @@ class Game:
                     self.snake.direction = 'RIGHT'
 
         # Move the snake
+
         self.snake.move()
 
-        # Remove the last block of the snake's body
-        self.snake.body.pop()
+        
+        
 
+
+        
+        #Check collision with the food
+        if self.food.detect_collision(self.snake) == False:
+            self.snake.body.pop()
+        else:
+           self.score += 1
+
+        #Check collision with the snake with:
+        # Borders
+        # Itself
+        if self.snake.check_collision() == True:
+            pygame.quit()
+            quit()
+
+        
         # Draw the game objects on the screen
         self.draw()
 
         # Control the frame rate of the game
-        self.clock.tick(20)
+        self.clock.tick(10)
 
         # Return a value to indicate the game should continue
         return 0

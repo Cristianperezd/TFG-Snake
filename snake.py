@@ -19,10 +19,10 @@ class Snake:
         self.direction = 'UP'
         
         # Setting the initial position of the snake's head
-        self.head = Vector2(constants.WIDTH // 2, constants.HEIGHT // 2)
+        self.head = Vector2(((constants.WIDTH // constants.BLOCK)//2)*20, ((constants.HEIGHT // constants.BLOCK)//2)*20)
         
         # Setting the initial positions of the snake's body
-        self.body = [self.head, Vector2(self.head.x, self.head.y - constants.BLOCK), Vector2(self.head.x, self.head.y - (2 * constants.BLOCK))]
+        self.body = [self.head, Vector2(self.head.x, self.head.y + constants.BLOCK), Vector2(self.head.x, self.head.y + (2 * constants.BLOCK))]
 
     # Method to draw the snake on the display
     def draw(self, display):
@@ -63,3 +63,15 @@ class Snake:
 
         # Adding the new head to the beginning of the snake's body list
         self.body.insert(0, self.head)
+
+    def check_collision(self):
+        #Check borders collisions
+        if self.head.x >= constants.WIDTH or self.head.x < 0 or self.head.y >= constants.HEIGHT or self.head.y < 0:
+            return True
+        #Hits snake
+        print(self.head)
+        print(self.body)
+
+        if self.head in self.body[1:]:
+            return True
+        return False
