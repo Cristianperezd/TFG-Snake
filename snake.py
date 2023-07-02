@@ -25,6 +25,8 @@ class Snake:
         self.body = [self.head, Vector2(self.head.x, self.head.y + constants.BLOCK), Vector2(self.head.x, self.head.y + (2 * constants.BLOCK))]
 
     # Method to draw the snake on the display
+    def get_head(self):
+        return self.body[0]
     def draw(self, display):
         
         # Looping through each block of the snake's body
@@ -69,8 +71,8 @@ class Snake:
         if self.head.x >= constants.WIDTH or self.head.x < 0 or self.head.y >= constants.HEIGHT or self.head.y < 0:
             return True
         #Hits snake
-        print(self.head)
-        print(self.body)
+        """print(self.head)
+        print(self.body)"""
 
         if self.head in self.body[1:]:
             return True

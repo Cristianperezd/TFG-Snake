@@ -1,0 +1,39 @@
+@startuml
+class Snake {
+    -direccion: string
+    -head: Vector2
+    -body: List<Vector2>
+    +draw(display)
+    +move_up()
+    +move_down()
+    +move_left()
+    +move_right()
+    +move()
+    +check_collision()
+}
+
+class Food {
+    -pos: Vector2
+    +generate()
+    +draw(display)
+    +inside_collision(snake: Snake, valid: bool)
+    +detect_collision(snake: Snake)
+}
+
+class Game {
+    -w: int
+    -h: int
+    -display: pygame.display
+    -clock: pygame.time.Clock
+    -score: int
+    -snake: Snake
+    -food: Food
+    +draw()
+    +step()
+}
+
+
+
+Snake --* Game
+Food --* Game
+@enduml
