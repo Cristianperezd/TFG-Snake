@@ -1,161 +1,101 @@
-import pygame
-from pygame.math import Vector2
-import constants
-from snake import Snake
-from food import Food
 import numpy as np
-from GBFS import GBFS
-from node import Node
-from AStarNode import AStarNode
+import pygame
 
-import os
-import time
-from color_constants import colors
+import colors
+import constants
+from astar_node import AStarNode
+from food import Food
+from snake import Snake
 
 pygame.init()
 
-class Game:
-    """Class to handle the game logic and rendering"""
-    
-    def __init__(self):
-        """Initialize the game"""
+KEY_DIRECTIONS = {
+    pygame.K_UP: ('UP', 'DOWN'),
+    pygame.K_DOWN: ('DOWN', 'UP'),
+    pygame.K_LEFT: ('LEFT', 'RIGHT'),
+    pygame.K_RIGHT: ('RIGHT', 'LEFT'),
+}
 
-        # Set the width and height of the game window
+
+class Game:
+    """Game loop, rendering and board state.
+
+    `board` is a GRID_ROWS x GRID_COLS matrix: 0 = empty, 1 = snake, 2 = food.
+    """
+
+    def __init__(self):
         self.w = constants.WIDTH
         self.h = constants.HEIGHT
-
-        # Create a Pygame display surface
         self.display = pygame.display.set_mode((self.w, self.h))
-
-        # Fill the display with a brown color
-        self.display.fill(colors['brown'][0:3])
-
-        # Create a Pygame clock object to control the frame rate
+        self.display.fill(colors.BACKGROUND)
         self.clock = pygame.time.Clock()
+        self.font = pygame.font.Font(None, 36)
 
-        # Set the initial score to zero
         self.score = 0
-
-        # Create a Snake object to represent the player
         self.snake = Snake()
         self.food = Food()
-
-        #0 for nothing
-        #1 for snake
-        #2 for food
-        self.board = np.zeros((25,25),dtype=np.int8)
-
-        self.board[int(self.food.pos.y/constants.BLOCK), int(self.food.pos.x/constants.BLOCK)] = 2
-        
         self.update_board()
-        
+
     def update_board(self):
-        self.board = np.zeros((25,25),dtype=np.int8)
-        self.board[int(self.food.pos.y/constants.BLOCK), int(self.food.pos.x/constants.BLOCK)] = 2
+        self.board = np.zeros((constants.GRID_ROWS, constants.GRID_COLS), dtype=np.int8)
+        self.board[int(self.food.pos.y / constants.BLOCK), int(self.food.pos.x / constants.BLOCK)] = 2
         for block in self.snake.body:
-            self.board[int(block.y/constants.BLOCK), int(block.x/constants.BLOCK)] = 1
+            self.board[int(block.y / constants.BLOCK), int(block.x / constants.BLOCK)] = 1
 
     def draw(self):
-        """Draw the game objects on the screen"""
-
-        # Fill the display with a brown color
-        self.display.fill(colors['brown'][0:3])
-
-        # Draw the snake on the screen
+        self.display.fill(colors.BACKGROUND)
         self.snake.draw(display=self.display)
-
         self.food.draw(display=self.display)
-
-        pygame.draw.rect(self.display, colors['powderblue'][0:3], pygame.Rect(500, 0, constants.BLOCK, constants.BLOCK))
-
-        # Crear un objeto de fuente
-        font = pygame.font.Font(None, 36)
-        # Renderizar el texto de la puntuación
-        score_text = font.render("Score: " + str(self.score), True, colors['white'])
-        # Copiar el texto en la pantalla
+        score_text = self.font.render("Score: " + str(self.score), True, colors.TEXT)
         self.display.blit(score_text, (10, 10))
- 
-
         pygame.display.flip()
 
-    def step(self,gbfs = False,initial_state = None, greedybfs = None):
-        """Update the game state for one frame"""
+    def step(self, agent=None):
+        """Advance the game by one frame.
 
-        # Process Pygame events
+        With `agent=None` the snake is controlled with the arrow keys. Otherwise
+        the agent plans a path to the food and the snake follows it.
+
+        Returns 0 while the game continues, or the score if the agent cannot
+        find a path.
+        """
         for event in pygame.event.get():
-            # Quit the game if the user closes the window
             if event.type == pygame.QUIT:
                 pygame.quit()
                 quit()
-            if gbfs == False:
-                # Change the snake direction based on key input
-                if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_UP and self.snake.direction != 'DOWN':
-                        self.snake.direction = 'UP'
-                    elif event.key == pygame.K_DOWN and self.snake.direction != 'UP':
-                        self.snake.direction = 'DOWN'
-                    elif event.key == pygame.K_LEFT and self.snake.direction != 'RIGHT':
-                        self.snake.direction = 'LEFT'
-                    elif event.key == pygame.K_RIGHT and self.snake.direction != 'LEFT':
-                        self.snake.direction = 'RIGHT'
+            if agent is None and event.type == pygame.KEYDOWN and event.key in KEY_DIRECTIONS:
+                new_direction, opposite = KEY_DIRECTIONS[event.key]
+                if self.snake.direction != opposite:
+                    self.snake.direction = new_direction
 
-        # Move the snake
-        
-        if gbfs and greedybfs.state == 0:
-            
-            node_origin = AStarNode(self.board,self.snake,self.food)
-
-            greedybfs.reset(node_origin)
-
-            greedybfs.solution = greedybfs.search()
-
-
-            if greedybfs.solution == 'END' or greedybfs.solution is None:
+        if agent is not None and agent.state == 0:
+            agent.reset(AStarNode(self.board, self.snake, self.food))
+            agent.solution = agent.search()
+            if agent.solution == 'END' or agent.solution is None:
                 return self.score
-            greedybfs.solution.pop(0)
-            greedybfs.state = 1
-            i = len(greedybfs.solution)
-            greedybfs.counter = 0
-            #print(greedybfs.solution)
+            agent.solution.pop(0)  # Drop the current direction
+            agent.state = 1
+            agent.counter = 0
 
-
-        if gbfs and greedybfs.state == 1:
-            self.snake.direction = greedybfs.solution[greedybfs.counter]
-            greedybfs.counter = greedybfs.counter + 1
+        if agent is not None and agent.state == 1:
+            self.snake.direction = agent.solution[agent.counter]
+            agent.counter += 1
 
         self.snake.move()
 
-        #print(self.score)
-        
-        #print(self.food.pos.x/constants.BLOCK)
-        """print(self.board)
-        print(self.food.pos.x/constants.BLOCK, self.food.pos.y/constants.BLOCK)"""
-
-        
-
-        #Check collision with the food
-        if self.food.detect_collision(self.snake) == False:
-            self.snake.body.pop()
+        if self.food.detect_collision(self.snake):
+            self.score += 1
+            if agent is not None:
+                agent.state = 0
         else:
-           self.score += 1
-           if gbfs:
-               greedybfs.state = 0
-           
+            self.snake.body.pop()
+
         self.update_board()
-        #Check collision with the snake with:
-        # Borders
-        # Itself
-        if self.snake.check_collision() == True:
+
+        if self.snake.check_collision():
             pygame.quit()
             quit()
-            return self.score
 
-
-        # Draw the game objects on the screen
         self.draw()
-
-        # Control the frame rate of the game
         self.clock.tick(30)
-
-        # Return a value to indicate the game should continue
         return 0
