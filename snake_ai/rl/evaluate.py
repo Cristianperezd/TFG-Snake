@@ -1,18 +1,18 @@
 """Load a trained PPO checkpoint, play some episodes and print score statistics.
 
 Examples:
-    python evaluate_ppo.py models/PPO-1686657037/990000.zip
-    python evaluate_ppo.py models/PPO-1686657037/990000.zip --episodes 50 --no-render --seed 0
+    snake-ai evaluate models/PPO-1686657037/990000.zip
+    snake-ai evaluate models/PPO-1686657037/990000.zip --episodes 50 --no-render --seed 0
 """
 import argparse
 import statistics
 
+from snake_ai.rl import import_ppo
 from snake_ai.rl.snake_env import SnakeEnv
 
 
-def parse_args(argv=None):
-    parser = argparse.ArgumentParser(description="Evaluate a trained PPO agent on Snake.")
-    parser.add_argument('model', help="path to a checkpoint saved by snake_ai.rl.train (.zip)")
+def add_arguments(parser):
+    parser.add_argument('model', help="path to a checkpoint saved by snake-ai train (.zip)")
     parser.add_argument('--episodes', type=int, default=50,
                         help="number of episodes to play (default: %(default)s)")
     parser.add_argument('--render', action=argparse.BooleanOptionalAction, default=True,
@@ -21,17 +21,17 @@ def parse_args(argv=None):
                         help="random seed for the policy and the food positions")
     parser.add_argument('--max-steps', type=int, default=None,
                         help="stop an episode after this many steps (default: no limit)")
-    args = parser.parse_args(argv)
+
+
+def check_arguments(parser, args):
     if args.episodes < 1:
         parser.error("--episodes must be at least 1")
     if args.max_steps is not None and args.max_steps < 1:
         parser.error("--max-steps must be at least 1")
-    return args
 
 
-def main(argv=None):
-    args = parse_args(argv)
-    from stable_baselines3 import PPO
+def run(args):
+    PPO = import_ppo()
     from stable_baselines3.common.utils import set_random_seed
 
     if args.seed is not None:
@@ -62,7 +62,3 @@ def main(argv=None):
     print(f"Episodes: {len(scores)}  Mean: {statistics.mean(scores):.2f}  "
           f"Min: {min(scores)}  Max: {max(scores)}")
     return scores
-
-
-if __name__ == '__main__':
-    main()
