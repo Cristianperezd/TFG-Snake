@@ -52,6 +52,10 @@ version = { attr = "snake_ai.__version__" }
 [tool.setuptools.packages.find]
 include = ["snake_ai*"]
 
+[tool.setuptools.package-data]
+# The pretrained PPO agent used by `snake-ai evaluate` by default
+"snake_ai.rl" = ["pretrained/*.zip"]
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 pythonpath = [".", "tests"]
