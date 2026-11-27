@@ -20,6 +20,7 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
           cache: pip
-          cache-dependency-path: requirements-test.txt
-      - run: pip install -r requirements-test.txt
+          cache-dependency-path: pyproject.toml
+      # The rl extra (Stable Baselines 3, PyTorch) is not needed by the tests
+      - run: pip install -e ".[test]"
       - run: pytest -v
