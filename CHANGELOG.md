@@ -5,7 +5,7 @@ Versions follow [Semantic Versioning](https://semver.org/):
 - **1.x** is the thesis project, cleaned up and made reproducible. Agent behaviour and results match the thesis.
 - **2.x** will contain improvements beyond the thesis.
 
-## [1.3.0] - Unreleased
+## [1.3.0] - 2026-11-27
 
 ### Added
 - Command-line interface for `main.py`: `--agent {human,gbfs,astar}`, `--games`, `--fps`, `--seed`, `--headless` and `--max-steps`. It prints each game's score and why it ended, plus mean, min and max. `--games 50` reproduces the thesis evaluation.
@@ -54,7 +54,7 @@ The regression tests confirm that A\* games, GBFS searches and RL environment ep
 
 Original submission of the Bachelor's Thesis (Universitat Autònoma de Barcelona).
 
-[1.3.0]: https://github.com/Cristianperezd/TFG-Snake/compare/v1.2.0...HEAD
+[1.3.0]: https://github.com/Cristianperezd/TFG-Snake/compare/v1.2.0...v1.3.0
 [1.2.0]: https://github.com/Cristianperezd/TFG-Snake/compare/v1.1.0...v1.2.0
 [1.1.0]: https://github.com/Cristianperezd/TFG-Snake/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/Cristianperezd/TFG-Snake/tree/v1.0.0
