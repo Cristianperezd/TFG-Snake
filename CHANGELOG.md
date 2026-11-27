@@ -5,6 +5,30 @@ Versions follow [Semantic Versioning](https://semver.org/):
 - **1.x** is the thesis project, cleaned up and made reproducible. Agent behaviour and results match the thesis.
 - **2.x** will contain improvements beyond the thesis.
 
+## [1.5.0] - Unreleased
+
+### Added
+- A pretrained PPO agent, `snake_ai/rl/pretrained/ppo_snake.zip` (~150 KB), trained with the thesis configuration (`snake-ai train --seed 0`, 5,109,760 steps). `snake-ai evaluate` uses it when no `MODEL` is given, so `pip install -e ".[rl]"` followed by `snake-ai evaluate` is enough to watch it play. Over 150 seeded episodes it scores 34.10 on average (1 – 70); see the README for the comparison with the thesis.
+- `SnakeEnv(render_mode=None, max_episode_steps=None)`: render mode validated against `metadata["render_modes"]` (`"human"`, `"rgb_array"`) and optional truncation after `max_episode_steps` steps.
+- `reset(seed=..., options=...)`: a seed also seeds Python's `random` module, which places the food, so seeded episodes are reproducible.
+- `"rgb_array"` render mode: `render()` returns the frame as a 500×500×3 `uint8` array, without opening a window.
+- The environment is registered with Gymnasium as `SnakeAI-v0` when `snake_ai.rl` is imported.
+- Tests for the Gymnasium API (`gymnasium.utils.env_checker.check_env`, seeding, truncation, render modes, `gymnasium.make`) and for the pretrained model.
+
+### Changed
+- `snake-ai evaluate`: `MODEL` is optional. `--max-steps` uses the environment's truncation instead of breaking out of the loop, and `--seed` seeds the first `reset()`.
+- The `"human"` window is opened on the first `render()` call instead of in `reset()`, and `close()` only closes the window.
+- README: how to try the pretrained agent, how to train your own, the environment's API and the measured results.
+
+### Fixed
+- `SnakeEnv` did not follow the Gymnasium API: `reset()` did not accept `options` nor call `super().reset()`, there was no `metadata` and `render()` needed a window opened by `reset()`. Callers had to set `env.render_mode` after creating the environment.
+- `snake-ai evaluate` failed with a traceback when the model file did not exist.
+
+### Known issues
+- Training in 10,000-step chunks (one checkpoint each) makes PPO run whole 2,048-step rollouts, so each chunk runs 10,240 steps and the default run does 5,109,760 steps instead of 4,990,000. Kept as in the thesis and documented.
+
+The dynamics, observations and rewards are unchanged: the regression tests pass, and 2,000 random-action episodes (619,521 steps) give identical observations, rewards and scores with the 1.4.0 and 1.5.0 environments.
+
 ## [1.4.0] - 2026-11-27
 
 ### Added
