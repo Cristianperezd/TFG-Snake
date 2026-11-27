@@ -11,7 +11,9 @@ import os
 import random
 import statistics
 
-import pygame
+os.environ.setdefault('PYGAME_HIDE_SUPPORT_PROMPT', '1')
+
+import pygame  # noqa: E402
 
 import constants
 from astar import AStar
