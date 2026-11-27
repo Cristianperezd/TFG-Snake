@@ -136,16 +136,52 @@ After each game it prints the score and why the game ended (`collision`, `no pat
 
 Training and evaluation need Stable Baselines 3 (PyTorch) and TensorBoard: install the `rl` extra (`pip install -e ".[rl]"`).
 
+**Try the pretrained agent.** A PPO agent trained with the thesis configuration ships with the package (`snake_ai/rl/pretrained/ppo_snake.zip`, ~150 KB), so this is enough:
+
+```bash
+pip install -e ".[rl]"
+snake-ai evaluate                                    # 50 episodes in a window
+snake-ai evaluate --episodes 50 --no-render --seed 0 # the evaluation below, without a window
+```
+
+**Train your own.**
+
 | Command | What it does |
 |---|---|
 | `snake-ai train` | Trains a PPO agent for ~5M steps, as in the thesis. Checkpoints go to `models/<run>/` every 10,000 steps and TensorBoard logs to `logs/<run>/`. |
 | `snake-ai train --timesteps 200000 --run-name quick --seed 0` | A shorter, seeded run in `models/quick/`. |
 | `snake-ai evaluate models/quick/200000.zip` | Plays 50 episodes with a checkpoint in a window and prints score statistics. |
-| `snake-ai evaluate models/quick/200000.zip --episodes 10 --no-render --max-steps 5000` | The same without a window, stopping episodes that run too long. |
+| `snake-ai evaluate models/quick/200000.zip --episodes 10 --no-render --max-steps 5000` | The same without a window, truncating episodes that run too long. |
 
-`snake-ai train` options: `--timesteps`, `--checkpoint-freq`, `--run-name`, `--models-dir`, `--logs-dir`, `--seed`. `snake-ai evaluate` options: `--episodes`, `--render` / `--no-render`, `--seed`, `--max-steps`. Run any command with `--help` for details.
+`snake-ai train` options: `--timesteps`, `--checkpoint-freq`, `--run-name`, `--models-dir`, `--logs-dir`, `--seed`. `snake-ai evaluate` options: `MODEL` (default: the pretrained agent), `--episodes`, `--render` / `--no-render`, `--seed`, `--max-steps`. Run any command with `--help` for details.
 
-Trained models are not included in the repository.
+Known quirk (kept in 1.x): training saves a checkpoint every `--checkpoint-freq` steps by calling PPO in chunks, and PPO always collects whole rollouts of 2,048 steps. Each 10,000-step chunk therefore runs 10,240 steps, and the default run does 5,109,760 steps instead of 4,990,000. The checkpoint names use the nominal counts.
+
+**Results of the pretrained agent.** The shipped model is the final checkpoint of one run of `snake-ai train --seed 0` (5,109,760 steps, Stable Baselines 3 2.9.2, PyTorch 2.15 on CPU, 1 h 47 min). It was not picked among several runs or checkpoints. 50 episodes per evaluation seed, with `snake-ai evaluate --episodes 50 --no-render --seed N`:
+
+| Agent | Mean, seed 0 | Mean, seed 1 | Mean, seed 2 | All 150 episodes: mean (min – max) |
+|---|---:|---:|---:|---:|
+| Pretrained agent, final checkpoint (~5.1M steps) | 34.52 | 32.72 | 35.06 | **34.10** (1 – 70) |
+| Same run, `990000.zip` checkpoint (~1M steps) | 21.38 | 22.36 | 23.42 | 22.39 (1 – 59) |
+| Thesis, PPO v2 (unseeded, 50 episodes) | | | | 20.90 (3 – 42) |
+
+The final checkpoint scores clearly higher than the thesis. A likely reason: the thesis evaluation script (`load_models.py` at [`v1.0.0`](../../tree/v1.0.0)) loaded the `990000.zip` checkpoint of its runs (all its model paths point to that file), not the last one, and the same checkpoint of this run scores 22.39, close to the thesis' 20.90. The rest of the gap can come from the random seeds (the thesis runs were not seeded) and newer library versions. The agent is still far below A\* (78.34): its 9-value observation only says whether the next cell in each direction is safe, so it cannot plan around its own body.
+
+**The environment.** `SnakeEnv` follows the Gymnasium API (`gymnasium.utils.env_checker.check_env` passes) and is registered as `SnakeAI-v0`:
+
+```python
+import gymnasium as gym
+import snake_ai.rl  # registers SnakeAI-v0
+
+env = gym.make("SnakeAI-v0", render_mode="rgb_array")
+obs, info = env.reset(seed=0)
+obs, reward, terminated, truncated, info = env.step(env.action_space.sample())
+frame = env.render()  # 500x500x3 uint8 array, no window needed
+```
+
+- `render_mode`: `None` (default, no drawing), `"human"` (a window, updated every step) or `"rgb_array"` (`render()` returns the frame).
+- `max_episode_steps`: truncate episodes after this many steps (`truncated=True`). The default, `None`, never truncates, as in the thesis. `gym.make(..., max_episode_steps=N)` does the same through Gymnasium's `TimeLimit` wrapper.
+- Seeding: the food positions use Python's `random` module, as in the thesis. `reset(seed=n)` seeds it, so seeded episodes are reproducible; `reset()` without a seed leaves it untouched, which keeps the thesis behaviour (and the regression tests) unchanged.
 
 ## Tests
 
@@ -156,7 +192,7 @@ ruff check && ruff format --check
 ```
 
 - **Regression tests** replay A\* games, GBFS searches and RL environment episodes with fixed random seeds, and compare them frame by frame with traces recorded from the original thesis code (`tests/golden/`, generated at `v1.1.0`). Any change to the agents' behaviour makes them fail.
-- **Unit tests** cover movement, collisions, food respawning, path validity, the environment's observations and rewards, how games end, the command-line options and the `snake-ai` entry point.
+- **Unit tests** cover movement, collisions, food respawning, path validity, the environment's observations and rewards, its Gymnasium API (`check_env`, seeding, truncation, render modes, `gymnasium.make`), how games end, the command-line options and the `snake-ai` entry point. One test plays the pretrained agent; it is skipped when Stable Baselines 3 is not installed, as on CI.
 
 They run automatically on every push and pull request with GitHub Actions, on Python 3.10 to 3.13, together with [Ruff](https://github.com/astral-sh/ruff) for linting and formatting (configured in `pyproject.toml`).
 
@@ -177,9 +213,10 @@ They run automatically on every push and pull request with GitHub Actions, on Py
 │   │   ├── gbfs.py         # GBFS and GBFSNode
 │   │   └── astar.py        # A* and AStarNode
 │   └── rl/
-│       ├── snake_env.py    # Gymnasium environment
+│       ├── snake_env.py    # Gymnasium environment (SnakeAI-v0)
 │       ├── train.py        # PPO training
-│       └── evaluate.py     # PPO evaluation
+│       ├── evaluate.py     # PPO evaluation
+│       └── pretrained/     # The pretrained PPO agent (ppo_snake.zip)
 ├── tests/                  # Regression and unit tests
 ├── docs/                   # Images for this README
 └── pyproject.toml          # Package metadata, dependencies, pytest and Ruff settings
