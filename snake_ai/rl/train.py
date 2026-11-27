@@ -6,6 +6,11 @@ Examples:
 
 Checkpoints go to <models-dir>/<run-name>/<steps>.zip and TensorBoard logs to
 <logs-dir>/<run-name>/.
+
+Known quirk, kept as in the thesis: PPO collects whole rollouts of 2,048 steps,
+so each checkpoint chunk runs a few more steps than --checkpoint-freq and the
+total ends up slightly above --timesteps. The checkpoint names use the nominal
+step counts.
 """
 
 import math
