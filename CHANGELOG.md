@@ -5,6 +5,30 @@ Versions follow [Semantic Versioning](https://semver.org/):
 - **1.x** is the thesis project, cleaned up and made reproducible. Agent behaviour and results match the thesis.
 - **2.x** will contain improvements beyond the thesis.
 
+## [1.4.0] - Unreleased
+
+### Added
+- `pyproject.toml`: the project installs as the `snake-ai` package with `pip install -e .`. Optional extras: `rl` (Stable Baselines 3, TensorBoard) and `test` (pytest). The version is defined once, in `snake_ai.__version__`.
+- A single `snake-ai` command with subcommands: `snake-ai play`, `snake-ai train` and `snake-ai evaluate MODEL`, with the same options as the old scripts. `python -m snake_ai` works too, and `snake-ai --version` prints the version.
+- A clear error message when `train` or `evaluate` run without Stable Baselines 3 installed.
+- [Ruff](https://github.com/astral-sh/ruff) for linting and formatting, configured in `pyproject.toml` and checked in CI.
+- Mermaid architecture diagram in the README.
+- `.gitattributes` enforcing LF line endings.
+- Python, license and Ruff badges in the README.
+- Tests for the `snake-ai` entry point.
+
+### Changed
+- The modules moved from the repository root into the `snake_ai` package: `snake_ai.game` (`game`, `snake`, `food`, `constants`, `colors`), `snake_ai.search` (`node`, `search_agent`, `gbfs`, `astar`) and `snake_ai.rl` (`snake_env`, `train`, `evaluate`). `GBFSNode` and `AStarNode` now live in `gbfs.py` and `astar.py`.
+- The code is formatted with Ruff (formatting only).
+- CI installs the package with `pip install -e ".[test]"`.
+
+### Removed
+- `main.py`, `train_ppo.py` and `evaluate_ppo.py`: use `snake-ai play`, `snake-ai train` and `snake-ai evaluate`.
+- `requirements.txt`, `requirements-test.txt` and `pytest.ini`, replaced by `pyproject.toml`.
+- The `Documentation/` folder with the outdated PlantUML class diagram. The original is still available at [`v1.0.0`](https://github.com/Cristianperezd/TFG-Snake/tree/v1.0.0/Documentation).
+
+Agent behaviour is unchanged: the regression tests pass, and `snake-ai play --games 50 --headless --seed 1` prints exactly the same scores as `python main.py --games 50 --headless --seed 1` in 1.3.0.
+
 ## [1.3.0] - 2026-11-27
 
 ### Added
@@ -54,6 +78,7 @@ The regression tests confirm that A\* games, GBFS searches and RL environment ep
 
 Original submission of the Bachelor's Thesis (Universitat Autònoma de Barcelona).
 
+[1.4.0]: https://github.com/Cristianperezd/TFG-Snake/compare/v1.3.0...HEAD
 [1.3.0]: https://github.com/Cristianperezd/TFG-Snake/compare/v1.2.0...v1.3.0
 [1.2.0]: https://github.com/Cristianperezd/TFG-Snake/compare/v1.1.0...v1.2.0
 [1.1.0]: https://github.com/Cristianperezd/TFG-Snake/compare/v1.0.0...v1.1.0
