@@ -1,42 +1,24 @@
-import pygame
-from pygame.math import Vector2
-import constants
-from snake import Snake
 from food import Food
-import numpy as np
-
+from snake import Snake
 
 
 class Node:
-    node_count = 0
+    """A state in the search tree.
 
-    def __init__(self,board,snake: Snake,food: Food,parent = None):
-        self.id = Node.node_count 
-        Node.node_count += 1
+    h: Manhattan distance (in pixels) from the snake's head to the food.
+    g: number of moves from the root of the search.
+    cost: g + h.
+    """
+
+    def __init__(self, board, snake: Snake, food: Food, parent=None):
         self.board = board
         self.snake = snake
         self.food = food
-        self.h = self.calculate_h()
         self.parent = parent
-        self.children = []
-        
-        self.ancestors = parent.ancestors[:] if parent else []  # Lista de ancestros del nodo actual
-        if parent:
-            self.ancestors.insert(0, parent.id)
-        
-
-        self.g = self.acumlate_g()
+        self.h = self.calculate_h()
+        self.g = parent.g + 1 if parent is not None else 1
         self.cost = self.h + self.g
-        """print('h: ', self.h)
-        print('cost: ', self.cost)"""
-
-    def acumlate_g(self):
-            if self.parent is not None:
-                 return self.parent.g + 1
-            else:
-                 return 1
 
     def calculate_h(self):
         head = self.snake.get_head()
         return abs(head.x - self.food.pos.x) + abs(head.y - self.food.pos.y)
-

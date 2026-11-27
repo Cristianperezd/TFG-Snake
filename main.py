@@ -1,87 +1,27 @@
-from game import Game
-from gbfs import GBFS
+"""Run the A* agent and print score statistics."""
 from astar import AStar
-
-from node import Node
-from gbfs_node import GBFSNode
 from astar_node import AStarNode
+from game import Game
 
+N_GAMES = 50
+
+
+def play_game():
+    game = Game()
+    agent = AStar(AStarNode(game.board, game.snake, game.food))
+    score = 0
+    while score <= 0:
+        score = game.step(agent)
+    return score
 
 
 if __name__ == '__main__':
-    """game = Game()
-    
-    # game loop
-
-    
-    mode = 1
-
-    if mode == 0:
-        initial_state = GBFSNode(game.board,game.snake,game.food)
-        greedybfs = GBFS(initial_state)
-        counter = 0
-    else:
-        initial_state = AStarNode(game.board,game.snake,game.food)
-        greedybfs = AStar(initial_state)
-        counter = 0
-    while True:
-        score = game.step(True,initial_state,greedybfs)
-        if score > 0:
-            print(score)
-            exit()
-"""
-    """results = []
-    for i in range(50):
-        game = Game()
-        initial_state = GBFSNode(game.board,game.snake,game.food)
-        greedybfs = GBFS(initial_state)
-        counter = 0
-        score = 0
-        while score <= 0 :
-            score = game.step(True,initial_state,greedybfs)
-        
-        results.append(score)
-        print('end game: ', i)"""
-    
-    """results = []
-    for i in range(20):
-        game = Game()
-        initial_state = AStarNode(game.board,game.snake,game.food)
-        greedybfs = AStar(initial_state)
-        counter = 0
-        score = 0
-        while score <= 0 :
-            score = game.step(True,initial_state,greedybfs)
-        
-        results.append(score)
-        print('end game: ', i)"""
     results = []
-    for i in range(50):
-        game = Game()
-        initial_state = AStarNode(game.board,game.snake,game.food)
-        greedybfs = AStar(initial_state)
-        counter = 0
-        score = 0
-        while score <= 0 :
-            score = game.step(True,initial_state,greedybfs)
-        
+    for i in range(N_GAMES):
+        score = play_game()
         results.append(score)
-        print('end game: ', i)
-        print('Score: ', score)
+        print(f'Game {i + 1}: score {score}')
 
-    # Media
-    media = sum(results) / len(results)
-    print("Media:", media)
-
-    # Mínimo y máximo
-    minimo = min(results)
-    maximo = max(results)
-    print("Mínimo:", minimo)
-    print("Máximo:", maximo)
-
-    
-
-    
-
-
-
+    print('Mean:', sum(results) / len(results))
+    print('Min:', min(results))
+    print('Max:', max(results))

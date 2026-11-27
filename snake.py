@@ -1,79 +1,56 @@
 import pygame
 from pygame.math import Vector2
+
+import colors
 import constants
-from colors import colors
 
 
+def next_position(position, direction):
+    """Return the cell reached by moving one block from `position` in `direction`."""
+    if direction == 'UP':
+        return Vector2(position.x, position.y - constants.BLOCK)
+    if direction == 'DOWN':
+        return Vector2(position.x, position.y + constants.BLOCK)
+    if direction == 'LEFT':
+        return Vector2(position.x - constants.BLOCK, position.y)
+    return Vector2(position.x + constants.BLOCK, position.y)
 
 
+def is_out_of_bounds(position):
+    return (position.x >= constants.WIDTH or position.x < 0
+            or position.y >= constants.HEIGHT or position.y < 0)
 
 
 class Snake:
-    """Class to handle the snake rendering and movement"""
+    """Snake position, movement, collisions and rendering."""
 
-    
     def __init__(self):
-        """ Initializing the snake object """
-
-        # Setting the initial direction of the snake
         self.direction = 'UP'
-        
-        # Setting the initial position of the snake's head
-        self.head = Vector2(((constants.WIDTH // constants.BLOCK)//2)*20, ((constants.HEIGHT // constants.BLOCK)//2)*20)
-        
-        # Setting the initial positions of the snake's body
-        self.body = [self.head, Vector2(self.head.x, self.head.y + constants.BLOCK), Vector2(self.head.x, self.head.y + (2 * constants.BLOCK))]
 
-    # Method to draw the snake on the display
+        # Start in the middle of the board, three blocks long, facing up
+        self.head = Vector2((constants.GRID_COLS // 2) * constants.BLOCK,
+                            (constants.GRID_ROWS // 2) * constants.BLOCK)
+        self.body = [
+            self.head,
+            Vector2(self.head.x, self.head.y + constants.BLOCK),
+            Vector2(self.head.x, self.head.y + 2 * constants.BLOCK),
+        ]
+
     def get_head(self):
         return self.body[0]
+
     def draw(self, display):
-        
-        # Looping through each block of the snake's body
         for index, block in enumerate(self.body):
-            if index == 0:
-                # Drawing the head of the snake with a different color
-                pygame.draw.rect(display, colors['chartreuse4'][0:3], pygame.Rect(block.x, block.y, constants.BLOCK, constants.BLOCK))
-            else:
-                # Drawing the rest of the snake's body
-                pygame.draw.rect(display, colors['chartreuse1'][0:3], pygame.Rect(block.x, block.y, constants.BLOCK, constants.BLOCK))
+            color = colors.SNAKE_HEAD if index == 0 else colors.SNAKE_BODY
+            pygame.draw.rect(display, color,
+                             pygame.Rect(block.x, block.y, constants.BLOCK, constants.BLOCK))
 
-    # Methods to move the snake in different directions
-    def move_up(self):
-        self.head = Vector2(self.head.x, self.head.y - constants.BLOCK)
-        
-    def move_down(self):
-        self.head = Vector2(self.head.x, self.head.y + constants.BLOCK)
-        
-    def move_left(self):
-        self.head = Vector2(self.head.x - constants.BLOCK, self.head.y)
-        
-    def move_right(self):
-        self.head = Vector2(self.head.x + constants.BLOCK, self.head.y)
-
-    # Method to move the snake based on its current direction
     def move(self):
-        
-        if self.direction == 'UP':
-            self.move_up()
-        elif self.direction == 'DOWN':
-            self.move_down()
-        elif self.direction == 'LEFT':
-            self.move_left()
-        elif self.direction == 'RIGHT':
-            self.move_right()
-
-        # Adding the new head to the beginning of the snake's body list
+        """Add a new head in the current direction. The caller removes the tail
+        unless the snake has just eaten."""
+        self.head = next_position(self.head, self.direction)
         self.body.insert(0, self.head)
 
     def check_collision(self):
-        #Check borders collisions
-        if self.head.x >= constants.WIDTH or self.head.x < 0 or self.head.y >= constants.HEIGHT or self.head.y < 0:
-            return True
-        #Hits snake
-        """print(self.head)
-        print(self.body)"""
-
-        if self.head in self.body[1:]:
-            return True
-        return False
+        """True if the head is outside the board or on the snake's own body."""
+        return is_out_of_bounds(self.head) or self.head in self.body[1:]

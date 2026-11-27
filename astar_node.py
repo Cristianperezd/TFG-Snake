@@ -1,15 +1,8 @@
-
-import pygame
-from pygame.math import Vector2
-import constants
-from snake import Snake
-from food import Food
-import numpy as np
 from node import Node
-import heapq
-import copy
 
 
 class AStarNode(Node):
+    """Node ordered by total cost g + h."""
+
     def __lt__(self, other):
         return self.cost < other.cost
