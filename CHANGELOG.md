@@ -5,7 +5,7 @@ Versions follow [Semantic Versioning](https://semver.org/):
 - **1.x** is the thesis project, cleaned up and made reproducible. Agent behaviour and results match the thesis.
 - **2.x** will contain improvements beyond the thesis.
 
-## [1.2.0] - Unreleased
+## [1.2.0] - 2026-11-27
 
 ### Changed
 - Removed the outdated `AStar.py`. The A\* used in the thesis experiments (`AStar_copy.py`, class `AStarCo`) is now `astar.py`, class `AStar`.
@@ -33,6 +33,6 @@ The regression tests confirm that A\* games, GBFS searches and RL environment ep
 
 Original submission of the Bachelor's Thesis (Universitat Autònoma de Barcelona).
 
-[1.2.0]: https://github.com/Cristianperezd/TFG-Snake/compare/v1.1.0...code-cleanup
+[1.2.0]: https://github.com/Cristianperezd/TFG-Snake/compare/v1.1.0...v1.2.0
 [1.1.0]: https://github.com/Cristianperezd/TFG-Snake/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/Cristianperezd/TFG-Snake/tree/v1.0.0
