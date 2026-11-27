@@ -1,9 +1,8 @@
 import random
 from pathlib import Path
 
-from astar import AStar
-from astar_node import AStarNode
-from game import Game
+from snake_ai.search.astar import AStar, AStarNode
+from snake_ai.game.game import Game
 
 GOLDEN_DIR = Path(__file__).resolve().parent / "golden"
 

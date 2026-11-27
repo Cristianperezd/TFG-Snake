@@ -7,12 +7,12 @@ Examples:
 import argparse
 import statistics
 
-from snake_env import SnakeEnv
+from snake_ai.rl.snake_env import SnakeEnv
 
 
 def parse_args(argv=None):
     parser = argparse.ArgumentParser(description="Evaluate a trained PPO agent on Snake.")
-    parser.add_argument('model', help="path to a checkpoint saved by train_ppo.py (.zip)")
+    parser.add_argument('model', help="path to a checkpoint saved by snake_ai.rl.train (.zip)")
     parser.add_argument('--episodes', type=int, default=50,
                         help="number of episodes to play (default: %(default)s)")
     parser.add_argument('--render', action=argparse.BooleanOptionalAction, default=True,

@@ -11,10 +11,9 @@ import random
 
 import pytest
 
-from gbfs import GBFS
-from gbfs_node import GBFSNode
+from snake_ai.search.gbfs import GBFS, GBFSNode
 from helpers import new_game, play_astar, read_golden
-from snake_env import SnakeEnv
+from snake_ai.rl.snake_env import SnakeEnv
 
 
 @pytest.mark.parametrize("seed", [1, 7, 42])

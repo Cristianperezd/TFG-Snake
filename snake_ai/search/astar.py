@@ -1,8 +1,15 @@
 import numpy as np
 
-import constants
-from astar_node import AStarNode
-from search_agent import SearchAgent
+from snake_ai.game import constants
+from snake_ai.search.node import Node
+from snake_ai.search.search_agent import SearchAgent
+
+
+class AStarNode(Node):
+    """Node ordered by total cost g + h."""
+
+    def __lt__(self, other):
+        return self.cost < other.cost
 
 
 class AStar(SearchAgent):

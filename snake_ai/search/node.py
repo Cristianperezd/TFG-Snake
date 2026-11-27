@@ -1,5 +1,5 @@
-from food import Food
-from snake import Snake
+from snake_ai.game.food import Food
+from snake_ai.game.snake import Snake
 
 
 class Node:

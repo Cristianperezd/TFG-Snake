@@ -2,8 +2,8 @@ import copy
 
 import numpy as np
 
-import constants
-from snake import is_out_of_bounds, next_position
+from snake_ai.game import constants
+from snake_ai.game.snake import is_out_of_bounds, next_position
 
 
 class SearchAgent:

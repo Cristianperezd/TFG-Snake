@@ -1,8 +1,8 @@
 from pygame.math import Vector2
 
-import constants
-from food import Food
-from snake import Snake, is_out_of_bounds, next_position
+from snake_ai.game import constants
+from snake_ai.game.food import Food
+from snake_ai.game.snake import Snake, is_out_of_bounds, next_position
 
 B = constants.BLOCK
 

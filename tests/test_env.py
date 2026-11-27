@@ -1,6 +1,6 @@
 import numpy as np
 
-from snake_env import SnakeEnv
+from snake_ai.rl.snake_env import SnakeEnv
 
 
 def test_reset_returns_valid_observation():
