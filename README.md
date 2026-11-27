@@ -65,11 +65,41 @@ python -m venv .venv
 pip install -r requirements.txt
 ```
 
+### Search agents and manual play
+
+`main.py` runs the game. By default the A\* agent plays one game in a window at 30 FPS.
+
 | Command | What it does |
 |---|---|
-| `python main.py` | Opens the game window and lets the A\* agent play. |
-| `python checkenv.py` | Trains a PPO agent. Checkpoints go to `models/` and TensorBoard logs to `logs/`. |
-| `python load_models.py` | Loads a trained PPO checkpoint and plays 50 episodes. Edit `models_dir` to point to your own run. |
+| `python main.py` | The A\* agent plays one game. |
+| `python main.py --agent gbfs --games 5` | The GBFS agent plays five games in a row. |
+| `python main.py --agent human` | You play with the arrow keys. |
+| `python main.py --games 50 --headless` | Runs the thesis evaluation: 50 games without a window, as fast as possible. The thesis runs were not seeded, so the exact scores vary from run to run. |
+| `python main.py --games 50 --headless --seed 1` | The same, with fixed food positions, so the run can be repeated exactly. |
+
+| Option | Default | Description |
+|---|---|---|
+| `--agent {human,gbfs,astar}` | `astar` | Who plays. |
+| `--games N` | `1` | Number of games. The thesis results use 50. |
+| `--fps N` | `30` | Frame rate of the window (`0` = no limit). |
+| `--seed N` | none | Random seed for the food positions. |
+| `--headless` | off | No window and no frame limit, for fast evaluation. Not available for `human`. |
+| `--max-steps N` | none | Stop a game after N frames. |
+
+After each game it prints the score and why the game ended (`collision`, `no path` when the agent cannot reach the food, or `step limit`), and at the end the mean, min and max scores. Closing the window stops the run.
+
+### PPO
+
+Training and evaluation need Stable Baselines 3 (PyTorch) and TensorBoard, both in `requirements.txt`.
+
+| Command | What it does |
+|---|---|
+| `python train_ppo.py` | Trains a PPO agent for ~5M steps, as in the thesis. Checkpoints go to `models/<run>/` every 10,000 steps and TensorBoard logs to `logs/<run>/`. |
+| `python train_ppo.py --timesteps 200000 --run-name quick --seed 0` | A shorter, seeded run in `models/quick/`. |
+| `python evaluate_ppo.py models/quick/200000.zip` | Plays 50 episodes with a checkpoint in a window and prints score statistics. |
+| `python evaluate_ppo.py models/quick/200000.zip --episodes 10 --no-render --max-steps 5000` | The same without a window, stopping episodes that run too long. |
+
+`train_ppo.py` options: `--timesteps`, `--checkpoint-freq`, `--run-name`, `--models-dir`, `--logs-dir`, `--seed`. `evaluate_ppo.py` options: `--episodes`, `--render` / `--no-render`, `--seed`, `--max-steps`. Run either with `--help` for details.
 
 Trained models are not included in the repository.
 
@@ -81,25 +111,25 @@ pytest
 ```
 
 - **Regression tests** replay A\* games, GBFS searches and RL environment episodes with fixed random seeds, and compare them frame by frame with traces recorded from the original thesis code (`tests/golden/`, generated at `v1.1.0`). Any change to the agents' behaviour makes them fail.
-- **Unit tests** cover movement, collisions, food respawning, path validity and the environment's observations and rewards.
+- **Unit tests** cover movement, collisions, food respawning, path validity, the environment's observations and rewards, how games end, and the command-line options.
 
 They run automatically on every push and pull request with GitHub Actions, on Python 3.10 to 3.13.
 
 ## Project structure
 
 ```
-├── main.py            # Runs the A* agent and prints score statistics
+├── main.py            # Entry point: play or watch an agent, print score statistics
 ├── game.py            # Game loop, rendering and board matrix
 ├── snake.py, food.py  # Game entities
-├── constants.py       # Board geometry
+├── constants.py       # Board geometry and defaults (FPS, node limit)
 ├── colors.py          # Colour palette
 ├── node.py            # Search node (heuristic + path cost)
 ├── search_agent.py    # Logic shared by the search agents
 ├── gbfs.py, gbfs_node.py
 ├── astar.py, astar_node.py
 ├── snake_env.py       # Gymnasium environment for RL
-├── checkenv.py        # PPO training script
-├── load_models.py     # PPO evaluation script
+├── train_ppo.py       # PPO training script
+├── evaluate_ppo.py    # PPO evaluation script
 ├── tests/             # Regression and unit tests
 └── Documentation/     # Class diagram
 ```
