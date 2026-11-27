@@ -14,13 +14,13 @@ class Food:
 
     def __init__(self):
         """ Initializing the snake object """
-        self.pos = Vector2(constants.BLOCK,(random.randint(0,(constants.HEIGHT-constants.BLOCK)/constants.BLOCK)*constants.BLOCK))
+        self.pos = Vector2(constants.BLOCK,(random.randint(0,(constants.HEIGHT-constants.BLOCK)//constants.BLOCK)*constants.BLOCK))
         
 
     #Method to generate the new possible cordinates for the food
     def generate(self):
-        x = random.randint(0,(constants.WIDTH-constants.BLOCK)/constants.BLOCK)
-        y = random.randint(0,(constants.HEIGHT-constants.BLOCK)/constants.BLOCK)
+        x = random.randint(0,(constants.WIDTH-constants.BLOCK)//constants.BLOCK)
+        y = random.randint(0,(constants.HEIGHT-constants.BLOCK)//constants.BLOCK)
         self.pos = Vector2(x*constants.BLOCK, y*constants.BLOCK)
 
     #Method to draw the food object in the screen 
