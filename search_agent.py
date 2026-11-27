@@ -12,7 +12,11 @@ class SearchAgent:
     The game asks the agent for a path to the food (`search`), then follows it
     one move per frame. `state` is 0 when a new path is needed and 1 while the
     agent is following `solution`; `counter` is the index of the next move.
+
+    Subclasses set `node_class` to the node type their search is ordered by.
     """
+
+    node_class = None
 
     def __init__(self, initial_node):
         self.reset(initial_node)

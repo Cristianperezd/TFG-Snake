@@ -12,3 +12,9 @@ GRID_COLS = WIDTH // BLOCK
 GRID_ROWS = HEIGHT // BLOCK
 
 DIRECTIONS = ('UP', 'DOWN', 'LEFT', 'RIGHT')
+
+# Frames per second when the game is shown in a window
+FPS = 30
+
+# GBFS gives up a search after expanding this many nodes
+MAX_EXPANDED_NODES = 2000

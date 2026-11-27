@@ -3,7 +3,6 @@ import pygame
 
 import colors
 import constants
-from astar_node import AStarNode
 from food import Food
 from snake import Snake
 
@@ -69,7 +68,7 @@ class Game:
                     self.snake.direction = new_direction
 
         if agent is not None and agent.state == 0:
-            agent.reset(AStarNode(self.board, self.snake, self.food))
+            agent.reset(agent.node_class(self.board, self.snake, self.food))
             agent.solution = agent.search()
             if agent.solution == 'END' or agent.solution is None:
                 return self.score
@@ -97,5 +96,5 @@ class Game:
             quit()
 
         self.draw()
-        self.clock.tick(30)
+        self.clock.tick(constants.FPS)
         return 0

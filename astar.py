@@ -13,6 +13,8 @@ class AStar(SearchAgent):
     equal or higher cost.
     """
 
+    node_class = AStarNode
+
     def reset(self, initial_node):
         super().reset(initial_node)
         self.best_cost = np.full((constants.GRID_ROWS, constants.GRID_COLS), np.inf)
