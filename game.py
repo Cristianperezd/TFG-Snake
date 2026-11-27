@@ -6,8 +6,6 @@ import constants
 from food import Food
 from snake import Snake
 
-pygame.init()
-
 KEY_DIRECTIONS = {
     pygame.K_UP: ('UP', 'DOWN'),
     pygame.K_DOWN: ('DOWN', 'UP'),
@@ -20,9 +18,20 @@ class Game:
     """Game loop, rendering and board state.
 
     `board` is a GRID_ROWS x GRID_COLS matrix: 0 = empty, 1 = snake, 2 = food.
+
+    `fps` limits the frame rate (0 = as fast as possible) and `render=False`
+    skips drawing, which is useful for fast headless evaluation. Neither
+    affects the game itself.
+
+    When the game ends, `end_reason` says why: 'collision', 'no path' (the
+    agent could not find a path to the food) or 'window closed'.
     """
 
-    def __init__(self):
+    def __init__(self, fps=constants.FPS, render=True):
+        pygame.init()
+        self.fps = fps
+        self.render = render
+        self.end_reason = None
         self.w = constants.WIDTH
         self.h = constants.HEIGHT
         self.display = pygame.display.set_mode((self.w, self.h))
@@ -34,6 +43,14 @@ class Game:
         self.snake = Snake()
         self.food = Food()
         self.update_board()
+
+    @property
+    def game_over(self):
+        return self.end_reason is not None
+
+    def _end(self, reason):
+        self.end_reason = reason
+        return True
 
     def update_board(self):
         self.board = np.zeros((constants.GRID_ROWS, constants.GRID_COLS), dtype=np.int8)
@@ -55,13 +72,12 @@ class Game:
         With `agent=None` the snake is controlled with the arrow keys. Otherwise
         the agent plans a path to the food and the snake follows it.
 
-        Returns 0 while the game continues, or the score if the agent cannot
-        find a path.
+        Returns True when the game is over (see `end_reason`), False otherwise.
+        The final score is in `score`.
         """
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                pygame.quit()
-                quit()
+                return self._end('window closed')
             if agent is None and event.type == pygame.KEYDOWN and event.key in KEY_DIRECTIONS:
                 new_direction, opposite = KEY_DIRECTIONS[event.key]
                 if self.snake.direction != opposite:
@@ -71,7 +87,7 @@ class Game:
             agent.reset(agent.node_class(self.board, self.snake, self.food))
             agent.solution = agent.search()
             if agent.solution == 'END' or agent.solution is None:
-                return self.score
+                return self._end('no path')
             agent.solution.pop(0)  # Drop the current direction
             agent.state = 1
             agent.counter = 0
@@ -92,9 +108,9 @@ class Game:
         self.update_board()
 
         if self.snake.check_collision():
-            pygame.quit()
-            quit()
+            return self._end('collision')
 
-        self.draw()
-        self.clock.tick(constants.FPS)
-        return 0
+        if self.render:
+            self.draw()
+        self.clock.tick(self.fps)
+        return False
