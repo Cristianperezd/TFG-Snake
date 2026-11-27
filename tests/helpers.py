@@ -1,8 +1,8 @@
 import random
 from pathlib import Path
 
-from snake_ai.search.astar import AStar, AStarNode
 from snake_ai.game.game import Game
+from snake_ai.search.astar import AStar, AStarNode
 
 GOLDEN_DIR = Path(__file__).resolve().parent / "golden"
 
@@ -22,8 +22,10 @@ def play_astar(seed, frames):
     for _ in range(frames):
         game_over = game.step(agent)
         head = game.snake.body[0]
-        lines.append(f"{game.score} {len(game.snake.body)} "
-                     f"{int(head.x)},{int(head.y)} {int(game.food.pos.x)},{int(game.food.pos.y)}")
+        lines.append(
+            f"{game.score} {len(game.snake.body)} "
+            f"{int(head.x)},{int(head.y)} {int(game.food.pos.x)},{int(game.food.pos.y)}"
+        )
         if game_over:
             break
     return lines

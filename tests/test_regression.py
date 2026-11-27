@@ -5,15 +5,17 @@ The files in tests/golden/ were recorded by running the code at tag v1.1.0
 the current code still produces exactly the same games, paths and
 observations, so refactors cannot silently change the agents' behaviour.
 """
+
 import contextlib
 import io
 import random
 
 import pytest
 
-from snake_ai.search.gbfs import GBFS, GBFSNode
-from helpers import new_game, play_astar, read_golden
 from snake_ai.rl.snake_env import SnakeEnv
+from snake_ai.search.gbfs import GBFS, GBFSNode
+
+from helpers import new_game, play_astar, read_golden
 
 
 @pytest.mark.parametrize("seed", [1, 7, 42])
@@ -37,7 +39,9 @@ def test_gbfs_paths_match_thesis_code():
 def greedy_action(obs, rng):
     """Simple policy that moves towards the food when it is safe, so that the
     recorded episodes include eating, growing and dying."""
-    wanted = [a for a, f in [(2, obs[0]), (3, obs[1]), (0, obs[2]), (1, obs[3])] if f and obs[5 + a]]
+    wanted = [
+        a for a, f in [(2, obs[0]), (3, obs[1]), (0, obs[2]), (1, obs[3])] if f and obs[5 + a]
+    ]
     safe = [a for a in range(4) if obs[5 + a]]
     return rng.choice(wanted or safe or [0])
 

@@ -11,7 +11,7 @@ BLOCK = 20
 GRID_COLS = WIDTH // BLOCK
 GRID_ROWS = HEIGHT // BLOCK
 
-DIRECTIONS = ('UP', 'DOWN', 'LEFT', 'RIGHT')
+DIRECTIONS = ("UP", "DOWN", "LEFT", "RIGHT")
 
 # Frames per second when the game is shown in a window
 FPS = 30

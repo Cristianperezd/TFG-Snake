@@ -6,10 +6,10 @@ from snake_ai.game.food import Food
 from snake_ai.game.snake import Snake
 
 KEY_DIRECTIONS = {
-    pygame.K_UP: ('UP', 'DOWN'),
-    pygame.K_DOWN: ('DOWN', 'UP'),
-    pygame.K_LEFT: ('LEFT', 'RIGHT'),
-    pygame.K_RIGHT: ('RIGHT', 'LEFT'),
+    pygame.K_UP: ("UP", "DOWN"),
+    pygame.K_DOWN: ("DOWN", "UP"),
+    pygame.K_LEFT: ("LEFT", "RIGHT"),
+    pygame.K_RIGHT: ("RIGHT", "LEFT"),
 }
 
 
@@ -53,7 +53,9 @@ class Game:
 
     def update_board(self):
         self.board = np.zeros((constants.GRID_ROWS, constants.GRID_COLS), dtype=np.int8)
-        self.board[int(self.food.pos.y / constants.BLOCK), int(self.food.pos.x / constants.BLOCK)] = 2
+        self.board[
+            int(self.food.pos.y / constants.BLOCK), int(self.food.pos.x / constants.BLOCK)
+        ] = 2
         for block in self.snake.body:
             self.board[int(block.y / constants.BLOCK), int(block.x / constants.BLOCK)] = 1
 
@@ -76,7 +78,7 @@ class Game:
         """
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                return self._end('window closed')
+                return self._end("window closed")
             if agent is None and event.type == pygame.KEYDOWN and event.key in KEY_DIRECTIONS:
                 new_direction, opposite = KEY_DIRECTIONS[event.key]
                 if self.snake.direction != opposite:
@@ -85,8 +87,8 @@ class Game:
         if agent is not None and agent.state == 0:
             agent.reset(agent.node_class(self.board, self.snake, self.food))
             agent.solution = agent.search()
-            if agent.solution == 'END' or agent.solution is None:
-                return self._end('no path')
+            if agent.solution == "END" or agent.solution is None:
+                return self._end("no path")
             agent.solution.pop(0)  # Drop the current direction
             agent.state = 1
             agent.counter = 0
@@ -107,7 +109,7 @@ class Game:
         self.update_board()
 
         if self.snake.check_collision():
-            return self._end('collision')
+            return self._end("collision")
 
         if self.render:
             self.draw()

@@ -26,7 +26,7 @@ class GBFS(SearchAgent):
             node = heapq.heappop(queue)
             visited.append(tuple(node.board.flatten()))
             if explored == constants.MAX_EXPANDED_NODES:
-                return 'END'
+                return "END"
             if self.is_goal(node):
                 return self.get_solution(node)
             for child in self.expand(node):

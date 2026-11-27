@@ -3,10 +3,11 @@ import io
 
 import pytest
 
+from snake_ai.game.snake import is_out_of_bounds, next_position
 from snake_ai.search.astar import AStar, AStarNode
 from snake_ai.search.gbfs import GBFS, GBFSNode
+
 from helpers import new_game, play_astar
-from snake_ai.game.snake import is_out_of_bounds, next_position
 
 
 def follow(game, path):
@@ -28,7 +29,7 @@ def test_search_finds_a_legal_path_to_the_food(agent_cls, node_cls, seed):
     game = new_game(seed)
     with contextlib.redirect_stdout(io.StringIO()):
         path = agent_cls(node_cls(game.board, game.snake, game.food)).search()
-    assert path not in (None, 'END')
+    assert path not in (None, "END")
     assert follow(game, path) == game.food.pos
 
 
