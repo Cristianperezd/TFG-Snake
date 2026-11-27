@@ -14,7 +14,11 @@ Versions follow [Semantic Versioning](https://semver.org/):
 - Replaced the 560-colour palette module with the five colours in use.
 - Removed dead code, debug prints and unused imports, and translated comments to English.
 
-Verified with fixed random seeds: A\* games, GBFS searches and RL environment episodes produce identical results before and after the cleanup.
+### Added
+- Test suite (`pytest`) with regression tests against traces recorded from the thesis code, plus unit tests.
+- GitHub Actions workflow running the tests on Python 3.10–3.13 for every push and pull request.
+
+The regression tests confirm that A\* games, GBFS searches and RL environment episodes are identical before and after the cleanup.
 
 ## [1.1.0] - 2026-11-27
 

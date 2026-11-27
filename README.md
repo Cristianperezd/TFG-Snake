@@ -1,5 +1,7 @@
 # Snake: Intelligent Agents
 
+[![Tests](https://github.com/Cristianperezd/TFG-Snake/actions/workflows/tests.yml/badge.svg)](https://github.com/Cristianperezd/TFG-Snake/actions/workflows/tests.yml)
+
 Bachelor's Thesis (TFG) in Computer Engineering, Universitat Autònoma de Barcelona, 2023.
 
 A Snake game built from scratch with **Pygame**, used as a testbed to compare classic search agents (**Greedy Best-First Search** and **A\***) with a **reinforcement learning** agent (**PPO**, via Stable Baselines 3 on a custom Gymnasium environment).
@@ -71,6 +73,18 @@ pip install -r requirements.txt
 
 Trained models are not included in the repository.
 
+## Tests
+
+```bash
+pip install -r requirements-test.txt
+pytest
+```
+
+- **Regression tests** replay A\* games, GBFS searches and RL environment episodes with fixed random seeds, and compare them frame by frame with traces recorded from the original thesis code (`tests/golden/`, generated at `v1.1.0`). Any change to the agents' behaviour makes them fail.
+- **Unit tests** cover movement, collisions, food respawning, path validity and the environment's observations and rewards.
+
+They run automatically on every push and pull request with GitHub Actions, on Python 3.10 to 3.13.
+
 ## Project structure
 
 ```
@@ -86,6 +100,7 @@ Trained models are not included in the repository.
 ├── snake_env.py       # Gymnasium environment for RL
 ├── checkenv.py        # PPO training script
 ├── load_models.py     # PPO evaluation script
+├── tests/             # Regression and unit tests
 └── Documentation/     # Class diagram
 ```
 
