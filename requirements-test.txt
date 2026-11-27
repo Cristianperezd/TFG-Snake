@@ -1,6 +1,0 @@
-# Dependencies for running the tests (no PyTorch / Stable Baselines 3 needed)
-pygame>=2.4
-numpy>=1.24
-gymnasium>=0.28
-pytest>=7
-pytest-timeout>=2

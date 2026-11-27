@@ -1,0 +1,58 @@
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "snake-ai"
+dynamic = ["version"]
+description = "Snake played by search agents (GBFS, A*) and a PPO reinforcement learning agent. Bachelor's thesis, UAB 2023."
+readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE.txt"]
+authors = [{ name = "Cristianperezd" }]
+requires-python = ">=3.10"
+dependencies = [
+    "pygame>=2.4",
+    "numpy>=1.24",
+    "gymnasium>=0.28",
+]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Operating System :: OS Independent",
+    "Topic :: Games/Entertainment",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+
+[project.optional-dependencies]
+# PPO training and evaluation (pulls in PyTorch)
+rl = [
+    "stable-baselines3>=2.0",
+    "tensorboard>=2.10",
+]
+test = [
+    "pytest>=7",
+    "pytest-timeout>=2",
+]
+
+[project.scripts]
+snake-ai = "snake_ai.cli:main"
+
+[project.urls]
+Repository = "https://github.com/Cristianperezd/TFG-Snake"
+Changelog = "https://github.com/Cristianperezd/TFG-Snake/blob/main/CHANGELOG.md"
+Thesis = "https://ddd.uab.cat/record/280737"
+
+[tool.setuptools.dynamic]
+version = { attr = "snake_ai.__version__" }
+
+[tool.setuptools.packages.find]
+include = ["snake_ai*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = [".", "tests"]
+timeout = 60
