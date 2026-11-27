@@ -5,7 +5,7 @@ Versions follow [Semantic Versioning](https://semver.org/):
 - **1.x** is the thesis project, cleaned up and made reproducible. Agent behaviour and results match the thesis.
 - **2.x** will contain improvements beyond the thesis.
 
-## [1.5.0] - Unreleased
+## [1.5.0] - 2026-11-27
 
 ### Added
 - A pretrained PPO agent, `snake_ai/rl/pretrained/ppo_snake.zip` (~150 KB), trained with the thesis configuration (`snake-ai train --seed 0`, 5,109,760 steps). `snake-ai evaluate` uses it when no `MODEL` is given, so `pip install -e ".[rl]"` followed by `snake-ai evaluate` is enough to watch it play. Over 150 seeded episodes it scores 34.10 on average (1 – 70); see the README for the comparison with the thesis.
@@ -102,6 +102,7 @@ The regression tests confirm that A\* games, GBFS searches and RL environment ep
 
 Original submission of the Bachelor's Thesis (Universitat Autònoma de Barcelona).
 
+[1.5.0]: https://github.com/Cristianperezd/TFG-Snake/compare/v1.4.0...v1.5.0
 [1.4.0]: https://github.com/Cristianperezd/TFG-Snake/compare/v1.3.0...v1.4.0
 [1.3.0]: https://github.com/Cristianperezd/TFG-Snake/compare/v1.2.0...v1.3.0
 [1.2.0]: https://github.com/Cristianperezd/TFG-Snake/compare/v1.1.0...v1.2.0
