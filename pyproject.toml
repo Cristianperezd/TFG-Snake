@@ -9,7 +9,7 @@ description = "Snake played by search agents (GBFS, A*) and a PPO reinforcement 
 readme = "README.md"
 license = "MIT"
 license-files = ["LICENSE.txt"]
-authors = [{ name = "Cristianperezd" }]
+authors = [{ name = "Cristian Pérez Díaz" }]
 requires-python = ">=3.10"
 dependencies = [
     "pygame>=2.4",
