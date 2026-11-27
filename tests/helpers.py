@@ -8,18 +8,10 @@ from game import Game
 GOLDEN_DIR = Path(__file__).resolve().parent / "golden"
 
 
-class _NoWaitClock:
-    """Replaces pygame's clock so tests do not wait 1/30 s per frame."""
-
-    def tick(self, *args):
-        return 0
-
-
 def new_game(seed):
+    """New game with a fixed seed and no frame limit, so tests do not wait 1/30 s per frame."""
     random.seed(seed)
-    game = Game()
-    game.clock = _NoWaitClock()
-    return game
+    return Game(fps=0)
 
 
 def play_astar(seed, frames):
@@ -29,11 +21,11 @@ def play_astar(seed, frames):
     agent = AStar(AStarNode(game.board, game.snake, game.food))
     lines = []
     for _ in range(frames):
-        result = game.step(agent)
+        game_over = game.step(agent)
         head = game.snake.body[0]
         lines.append(f"{game.score} {len(game.snake.body)} "
                      f"{int(head.x)},{int(head.y)} {int(game.food.pos.x)},{int(game.food.pos.y)}")
-        if result:
+        if game_over:
             break
     return lines
 
