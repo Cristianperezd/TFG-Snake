@@ -63,7 +63,6 @@ def run(args):
     os.makedirs(log_dir, exist_ok=True)
 
     env = SnakeEnv()
-    env.reset()
 
     model = PPO("MlpPolicy", env, verbose=1, tensorboard_log=log_dir, seed=args.seed)
 
