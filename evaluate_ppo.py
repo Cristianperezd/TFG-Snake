@@ -1,28 +1,68 @@
-"""Load a trained PPO checkpoint and play 50 episodes, printing score statistics."""
-from stable_baselines3 import PPO
+"""Load a trained PPO checkpoint, play some episodes and print score statistics.
+
+Examples:
+    python evaluate_ppo.py models/PPO-1686657037/990000.zip
+    python evaluate_ppo.py models/PPO-1686657037/990000.zip --episodes 50 --no-render --seed 0
+"""
+import argparse
+import statistics
 
 from snake_env import SnakeEnv
 
-# Path to a checkpoint saved by checkenv.py
-MODEL_PATH = "models/PPOV3-5M1686657037/990000.zip"
-EPISODES = 50
 
-env = SnakeEnv()
-env.reset()
-env.render_mode = "human"
+def parse_args(argv=None):
+    parser = argparse.ArgumentParser(description="Evaluate a trained PPO agent on Snake.")
+    parser.add_argument('model', help="path to a checkpoint saved by train_ppo.py (.zip)")
+    parser.add_argument('--episodes', type=int, default=50,
+                        help="number of episodes to play (default: %(default)s)")
+    parser.add_argument('--render', action=argparse.BooleanOptionalAction, default=True,
+                        help="show the game in a window (default: on)")
+    parser.add_argument('--seed', type=int, default=None,
+                        help="random seed for the policy and the food positions")
+    parser.add_argument('--max-steps', type=int, default=None,
+                        help="stop an episode after this many steps (default: no limit)")
+    args = parser.parse_args(argv)
+    if args.episodes < 1:
+        parser.error("--episodes must be at least 1")
+    if args.max_steps is not None and args.max_steps < 1:
+        parser.error("--max-steps must be at least 1")
+    return args
 
-model = PPO.load(MODEL_PATH, env=env)
 
-results = []
-for _ in range(EPISODES):
-    obs, _ = env.reset()
-    done = False
-    while not done:
-        env.render()
-        action, _ = model.predict(obs)
-        obs, reward, done, trunc, info = env.step(action)
-    results.append(env.score)
+def main(argv=None):
+    args = parse_args(argv)
+    from stable_baselines3 import PPO
+    from stable_baselines3.common.utils import set_random_seed
 
-print("Mean:", sum(results) / len(results))
-print("Min:", min(results))
-print("Max:", max(results))
+    if args.seed is not None:
+        set_random_seed(args.seed)  # Python's random (food), NumPy and PyTorch
+
+    env = SnakeEnv()
+    env.reset()
+    if args.render:
+        env.render_mode = "human"  # The environment then draws every step
+
+    model = PPO.load(args.model, env=env)
+
+    scores = []
+    for episode in range(args.episodes):
+        obs, _ = env.reset()
+        done = False
+        steps = 0
+        while not done:
+            action, _ = model.predict(obs)
+            obs, reward, done, trunc, info = env.step(action)
+            steps += 1
+            if args.max_steps is not None and steps >= args.max_steps:
+                break
+        scores.append(env.score)
+        print(f"Episode {episode + 1}: score {env.score}" + ("" if done else " (step limit)"))
+
+    env.close()
+    print(f"Episodes: {len(scores)}  Mean: {statistics.mean(scores):.2f}  "
+          f"Min: {min(scores)}  Max: {max(scores)}")
+    return scores
+
+
+if __name__ == '__main__':
+    main()
