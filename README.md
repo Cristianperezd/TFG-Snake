@@ -19,7 +19,7 @@ A Snake game built from scratch with **Pygame**, used as a testbed to compare cl
 
 ## Results
 
-Each agent played 50 games on a 25×25 board. The score is the number of apples eaten. Search agents were limited to 2,000 expanded nodes per search.
+Each agent played 50 games on a 25×25 board. The score is the number of apples eaten. The thesis reports a limit of 2,000 expanded nodes per search; in the code, only GBFS enforces it, while the final A\* searches until it finds a path or runs out of options.
 
 | Agent | Mean score | Min – Max |
 |---|---:|---:|
