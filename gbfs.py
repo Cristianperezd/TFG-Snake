@@ -4,12 +4,11 @@ import constants
 from gbfs_node import GBFSNode
 from search_agent import SearchAgent
 
-# Give up a search after expanding this many nodes
-MAX_EXPANDED_NODES = 2000
-
 
 class GBFS(SearchAgent):
     """Greedy Best-First Search: always expands the node closest to the food."""
+
+    node_class = GBFSNode
 
     def search(self):
         queue = []
@@ -19,7 +18,7 @@ class GBFS(SearchAgent):
         while queue:
             node = heapq.heappop(queue)
             visited.append(tuple(node.board.flatten()))
-            if explored == MAX_EXPANDED_NODES:
+            if explored == constants.MAX_EXPANDED_NODES:
                 return 'END'
             if self.is_goal(node):
                 return self.get_solution(node)
