@@ -63,70 +63,35 @@ PPO is trained with Stable Baselines 3 (`MlpPolicy`).
 The code is a Python package, `snake_ai`, with three subpackages: `game`, `search` and `rl`. The command-line interface (`snake_ai.cli`) plays games with `Game` and a search agent (`snake-ai play`), or trains and evaluates PPO on `SnakeEnv` (`snake-ai train`, `snake-ai evaluate`).
 
 ```mermaid
-classDiagram
-    direction TB
-    namespace game {
-        class Game {
-            +board
-            +score
-            +end_reason
-            +step(agent) bool
-        }
-        class Snake {
-            +direction
-            +body
-            +move()
-            +check_collision() bool
-        }
-        class Food {
-            +pos
-            +generate()
-            +detect_collision(snake) bool
-        }
-    }
-    namespace search {
-        class SearchAgent {
-            +node_class
-            +search() list
-            +expand(node) list
-            +simulate_move(node, direction)
-        }
-        class GBFS
-        class AStar {
-            +best_cost
-        }
-        class Node {
-            +board
-            +g
-            +h
-            +cost
-            +parent
-        }
-        class GBFSNode
-        class AStarNode
-    }
-    namespace rl {
-        class SnakeEnv {
-            +action_space
-            +observation_space
-            +reset()
-            +step(action)
-        }
-    }
-    Game *-- Snake
-    Game *-- Food
-    Game ..> SearchAgent : asks for a path
-    SearchAgent <|-- GBFS
-    SearchAgent <|-- AStar
-    Node <|-- GBFSNode
-    Node <|-- AStarNode
-    GBFS ..> GBFSNode : expands
-    AStar ..> AStarNode : expands
-    Node o-- Snake
-    Node o-- Food
-    SnakeEnv *-- Snake
-    SnakeEnv *-- Food
-    note for SnakeEnv "gymnasium.Env, trained with PPO (Stable Baselines 3)"
+flowchart TB
+    CLI(["snake-ai<br/>play · train · evaluate"])
+
+    subgraph game ["snake_ai.game"]
+        Game["Game<br/>loop · board · score"]
+        Snake["Snake"]
+        Food["Food"]
+    end
+
+    subgraph search ["snake_ai.search"]
+        SA["SearchAgent<br/>simulate moves · rebuild path"]
+        GBFS["GBFS<br/>orders by h"]
+        AStar["A*<br/>orders by g + h"]
+    end
+
+    subgraph rl ["snake_ai.rl"]
+        Env["SnakeEnv<br/>gymnasium.Env"]
+        PPO["PPO<br/>Stable Baselines 3"]
+    end
+
+    CLI -- play --> Game
+    CLI -- "train · evaluate" --> PPO
+    Game --> Snake
+    Game --> Food
+    Game -- "asks for a path" --> SA
+    GBFS -. extends .-> SA
+    AStar -. extends .-> SA
+    PPO -- "action → observation, reward" --> Env
+    Env -. "reuses Snake and Food" .-> game
 ```
 
 The original class diagram from the thesis (PlantUML) is available at [`v1.0.0`](../../tree/v1.0.0/Documentation).
