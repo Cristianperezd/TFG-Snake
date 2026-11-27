@@ -5,7 +5,7 @@ Versions follow [Semantic Versioning](https://semver.org/):
 - **1.x** is the thesis project, cleaned up and made reproducible. Agent behaviour and results match the thesis.
 - **2.x** will contain improvements beyond the thesis.
 
-## [1.4.0] - Unreleased
+## [1.4.0] - 2026-11-27
 
 ### Added
 - `pyproject.toml`: the project installs as the `snake-ai` package with `pip install -e .`. Optional extras: `rl` (Stable Baselines 3, TensorBoard) and `test` (pytest). The version is defined once, in `snake_ai.__version__`.
@@ -78,7 +78,7 @@ The regression tests confirm that A\* games, GBFS searches and RL environment ep
 
 Original submission of the Bachelor's Thesis (Universitat Autònoma de Barcelona).
 
-[1.4.0]: https://github.com/Cristianperezd/TFG-Snake/compare/v1.3.0...HEAD
+[1.4.0]: https://github.com/Cristianperezd/TFG-Snake/compare/v1.3.0...v1.4.0
 [1.3.0]: https://github.com/Cristianperezd/TFG-Snake/compare/v1.2.0...v1.3.0
 [1.2.0]: https://github.com/Cristianperezd/TFG-Snake/compare/v1.1.0...v1.2.0
 [1.1.0]: https://github.com/Cristianperezd/TFG-Snake/compare/v1.0.0...v1.1.0
