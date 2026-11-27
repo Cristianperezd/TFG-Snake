@@ -8,7 +8,12 @@ A Snake game built from scratch with **Pygame**, used as a testbed to compare cl
   <img src="docs/astar-demo.gif" alt="A* agent playing Snake" width="300">
 </p>
 
-> **Status:** this repository is being revisited. The original thesis submission is preserved under the tag [`tfg-original-2023`](../../tree/tfg-original-2023). The current work reviews what I built at the time and improves it step by step: documentation, reproducibility and code quality.
+> **Status:** this repository is being revisited. The original thesis submission is preserved as [`v1.0.0`](../../tree/v1.0.0). The current work reviews what I built at the time and improves it step by step:
+>
+> - **1.x**: the thesis project, cleaned up and made reproducible. Results match the thesis.
+> - **2.x**: improvements beyond the thesis.
+>
+> See the [changelog](CHANGELOG.md) for details.
 
 ## Results
 
@@ -37,7 +42,8 @@ The full write-up (in Catalan) is available from the UAB repository: [Snake: Imp
 
 - `Node` stores the board, snake, food, the Manhattan-distance heuristic `h` and the path cost `g`.
 - `GBFSNode` orders nodes by `h` only. `AStarNode` orders them by `g + h`.
-- `AStar_copy.py` (`AStarCo`) is the final A\* used in the experiments. It keeps a per-cell best-cost matrix to discard redundant paths. `AStar.py` is an earlier version.
+- `SearchAgent` holds the logic shared by both agents: move simulation, collision checks and path reconstruction.
+- `AStar` also keeps the lowest cost that has reached each cell, and discards children that reach a cell with an equal or higher cost. This prunes redundant paths.
 
 **Reinforcement learning.** `SnakeEnv` wraps the game as a Gymnasium environment:
 
@@ -68,16 +74,18 @@ Trained models are not included in the repository.
 ## Project structure
 
 ```
+├── main.py            # Runs the A* agent and prints score statistics
 ├── game.py            # Game loop, rendering and board matrix
 ├── snake.py, food.py  # Game entities
+├── constants.py       # Board geometry
+├── colors.py          # Colour palette
 ├── node.py            # Search node (heuristic + path cost)
-├── GBFS.py, GBFSNode.py
-├── AStar_copy.py      # Final A* implementation (AStarCo)
-├── AStar.py, AStarNode.py
-├── Snakeenv.py        # Gymnasium environment for RL
+├── search_agent.py    # Logic shared by the search agents
+├── gbfs.py, gbfs_node.py
+├── astar.py, astar_node.py
+├── snake_env.py       # Gymnasium environment for RL
 ├── checkenv.py        # PPO training script
 ├── load_models.py     # PPO evaluation script
-├── main.py            # Runs the A* agent
 └── Documentation/     # Class diagram
 ```
 
