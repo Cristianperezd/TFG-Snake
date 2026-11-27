@@ -8,7 +8,7 @@ import numpy as np
 from node import Node
 import heapq
 import copy
-from GBFSNode import GBFSNode
+from gbfs_node import GBFSNode
 
 
 

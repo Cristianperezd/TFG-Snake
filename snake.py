@@ -1,7 +1,7 @@
 import pygame
 from pygame.math import Vector2
 import constants
-from color_constants import colors
+from colors import colors
 
 
 

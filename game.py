@@ -4,13 +4,13 @@ import constants
 from snake import Snake
 from food import Food
 import numpy as np
-from GBFS import GBFS
+from gbfs import GBFS
 from node import Node
-from AStarNode import AStarNode
+from astar_node import AStarNode
 
 import os
 import time
-from color_constants import colors
+from colors import colors
 
 pygame.init()
 

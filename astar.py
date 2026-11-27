@@ -8,7 +8,7 @@ import numpy as np
 from node import Node
 import heapq
 import copy
-from AStarNode import AStarNode
+from astar_node import AStarNode
 
 
 
@@ -20,14 +20,24 @@ class AStar:
         self.state = 0
         self.solution = None
         self.counter = 0
+        self.exploration_matrix = np.full((25, 25), np.inf)
+        self.exploration_matrix_ids = np.full((25, 25),-1, dtype=int)
+ 
 
+    def reset(self,initial_node: AStarNode):
+        self.initial_node = initial_node
+        self.goal_node = initial_node.food.pos
+        self.state = 0
+        self.solution = None
+        self.counter = 0
         self.exploration_matrix = np.full((25, 25), np.inf)
         self.exploration_matrix_ids = np.full((25, 25),-1, dtype=int)
 
 
+
     def search(self):
-        queue = []
-        heapq.heappush(queue, self.initial_node)
+        queue = [self.initial_node]
+        #heapq.heappush(queue, self.initial_node)
         visited = []
         explored = 0
         debug_list = []
@@ -35,7 +45,9 @@ class AStar:
 
             """if( explored == 2000 ):
                 return 'END'"""
-            node = heapq.heappop(queue)
+            #node = heapq.heappop(queue)
+            node = queue.pop(0)
+
             visited.append(tuple(node.board.flatten()))
             
             if self.is_goal(node):
@@ -43,15 +55,20 @@ class AStar:
                 return self.get_solution(node)
             children = self.expand(node,queue)
 
+            
             for child in children:
-                
+                #heapq.heappush(queue, child)
+
                 if tuple(child.board.flatten()) not in visited:
-                    heapq.heappush(queue, child)
+                    queue.append(child)
+
+
                 else:
                     print('repetido')
+                explored = explored + 1
+            queue.sort(key=lambda x: x.cost)
 
-                #explored = explored + 1
-            
+        debug_list.sort(key=lambda x: x.cost)
 
         return None
     
@@ -67,8 +84,8 @@ class AStar:
                     int(new_snake.get_head().x / constants.BLOCK)
                 )
 
-                if self.exploration_matrix[head_pos] >= child_node.cost:
-                    temp_queue = []
+                if self.exploration_matrix[head_pos] > child_node.cost:
+                    """temp_queue = []
 
                     while queue:    
                         new_node = heapq.heappop(queue)
@@ -78,7 +95,16 @@ class AStar:
 
                     # Restaurar los nodos en la heapq
                     for node_temp in temp_queue:
-                        heapq.heappush(queue, node_temp)
+                        heapq.heappush(queue, node_temp)"""
+                    
+                    """
+                    print(self.exploration_matrix_ids[head_pos])
+                    print(self.exploration_matrix[head_pos], child_node.cost)
+                    """
+
+                   
+
+                    self.remove_nodes_with_ancestor(self.exploration_matrix[head_pos], queue)
 
 
                     self.exploration_matrix[head_pos] = child_node.cost
@@ -135,3 +161,7 @@ class AStar:
     
     def is_goal(self,node):
         return node.snake.body[0] == node.food.pos
+    
+
+    def remove_nodes_with_ancestor(self,ancestor_id,queue):
+        queue = [node for node in queue if ancestor_id not in node.ancestors]

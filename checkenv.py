@@ -1,5 +1,5 @@
 from stable_baselines3.common.env_checker import check_env
-from Snakeenv import *
+from snake_env import *
 from stable_baselines3 import PPO,DQN
 import os
 import time

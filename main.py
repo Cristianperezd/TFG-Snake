@@ -1,12 +1,10 @@
 from game import Game
-from GBFS import GBFS
-from AStar import AStar
-
-from AStar_copy import AStarCo
+from gbfs import GBFS
+from astar import AStar
 
 from node import Node
-from GBFSNode import GBFSNode
-from AStarNode import AStarNode
+from gbfs_node import GBFSNode
+from astar_node import AStarNode
 
 
 
@@ -61,7 +59,7 @@ if __name__ == '__main__':
     for i in range(50):
         game = Game()
         initial_state = AStarNode(game.board,game.snake,game.food)
-        greedybfs = AStarCo(initial_state)
+        greedybfs = AStar(initial_state)
         counter = 0
         score = 0
         while score <= 0 :

@@ -10,7 +10,7 @@ from snake import Snake
 from food import Food
 import numpy as np
 import pygame
-from color_constants import colors
+from colors import colors
 
 
 

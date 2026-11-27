@@ -1,4 +1,4 @@
-from Snakeenv import SnakeEnv
+from snake_env import SnakeEnv
 
 
 from stable_baselines3 import PPO,DQN
