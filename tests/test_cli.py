@@ -178,9 +178,29 @@ def test_train_parses_options():
     ) == (1000, 500, "test", "m", "l", 3)
 
 
-def test_evaluate_needs_a_model_path():
-    with pytest.raises(SystemExit):
-        cli.parse_args(["evaluate"])
+def test_evaluate_defaults_to_the_pretrained_model():
+    from snake_ai.rl import PRETRAINED_MODEL
+
+    args = cli.parse_args(["evaluate"])
+    assert args.model == str(PRETRAINED_MODEL)
+
+
+def test_pretrained_model_is_shipped():
+    from snake_ai.rl import PRETRAINED_MODEL
+
+    assert PRETRAINED_MODEL.is_file()
+    assert PRETRAINED_MODEL.stat().st_size < 1_000_000
+
+
+def test_evaluate_reports_a_missing_model_file(tmp_path):
+    with pytest.raises(SystemExit, match="Model file not found"):
+        cli.main(["evaluate", str(tmp_path / "missing.zip"), "--no-render"])
+
+
+def test_pretrained_model_plays(capsys):
+    pytest.importorskip("stable_baselines3")  # Not installed on CI
+    cli.main(["evaluate", "--episodes", "2", "--no-render", "--seed", "0", "--max-steps", "2000"])
+    assert "Episodes: 2" in capsys.readouterr().out
 
 
 def test_evaluate_defaults_and_options():
