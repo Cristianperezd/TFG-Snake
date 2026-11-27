@@ -56,3 +56,24 @@ include = ["snake_ai*"]
 testpaths = ["tests"]
 pythonpath = [".", "tests"]
 timeout = 60
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.ruff.lint]
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # Pyflakes
+    "I",   # isort
+    "UP",  # pyupgrade
+    "B",   # flake8-bugbear
+]
+ignore = [
+    "B905",  # zip() without strict=: the regression test compares traces that may differ in length
+]
+
+[tool.ruff.lint.isort]
+known-first-party = ["snake_ai"]
+known-local-folder = ["helpers"]
