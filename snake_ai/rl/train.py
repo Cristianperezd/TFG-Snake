@@ -7,7 +7,7 @@ Examples:
 Checkpoints go to <models-dir>/<run-name>/<steps>.zip and TensorBoard logs to
 <logs-dir>/<run-name>/.
 """
-import argparse
+
 import math
 import os
 import time
@@ -21,18 +21,30 @@ DEFAULT_CHECKPOINT_FREQ = 10_000
 
 
 def add_arguments(parser):
-    parser.add_argument('--timesteps', type=int, default=DEFAULT_TIMESTEPS,
-                        help="total training steps (default: %(default)s)")
-    parser.add_argument('--checkpoint-freq', type=int, default=DEFAULT_CHECKPOINT_FREQ,
-                        help="save a checkpoint every this many steps (default: %(default)s)")
-    parser.add_argument('--run-name', default=None,
-                        help="name of the run folder (default: PPO-<timestamp>)")
-    parser.add_argument('--models-dir', default='models',
-                        help="where checkpoints are saved (default: %(default)s)")
-    parser.add_argument('--logs-dir', default='logs',
-                        help="where TensorBoard logs are saved (default: %(default)s)")
-    parser.add_argument('--seed', type=int, default=None,
-                        help="random seed for PPO and the food positions")
+    parser.add_argument(
+        "--timesteps",
+        type=int,
+        default=DEFAULT_TIMESTEPS,
+        help="total training steps (default: %(default)s)",
+    )
+    parser.add_argument(
+        "--checkpoint-freq",
+        type=int,
+        default=DEFAULT_CHECKPOINT_FREQ,
+        help="save a checkpoint every this many steps (default: %(default)s)",
+    )
+    parser.add_argument(
+        "--run-name", default=None, help="name of the run folder (default: PPO-<timestamp>)"
+    )
+    parser.add_argument(
+        "--models-dir", default="models", help="where checkpoints are saved (default: %(default)s)"
+    )
+    parser.add_argument(
+        "--logs-dir", default="logs", help="where TensorBoard logs are saved (default: %(default)s)"
+    )
+    parser.add_argument(
+        "--seed", type=int, default=None, help="random seed for PPO and the food positions"
+    )
 
 
 def check_arguments(parser, args):
@@ -53,7 +65,7 @@ def run(args):
     env = SnakeEnv()
     env.reset()
 
-    model = PPO('MlpPolicy', env, verbose=1, tensorboard_log=log_dir, seed=args.seed)
+    model = PPO("MlpPolicy", env, verbose=1, tensorboard_log=log_dir, seed=args.seed)
 
     for i in range(1, math.ceil(args.timesteps / args.checkpoint_freq) + 1):
         steps = min(i * args.checkpoint_freq, args.timesteps)

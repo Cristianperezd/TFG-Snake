@@ -11,12 +11,13 @@ Examples:
 `python -m snake_ai` works the same way. Training and evaluation need the
 `rl` extra (Stable Baselines 3), which is only imported when they run.
 """
+
 import argparse
 import os
 import random
 import statistics
 
-os.environ.setdefault('PYGAME_HIDE_SUPPORT_PROMPT', '1')
+os.environ.setdefault("PYGAME_HIDE_SUPPORT_PROMPT", "1")
 
 import pygame  # noqa: E402
 
@@ -27,7 +28,7 @@ from snake_ai.rl import evaluate, train  # noqa: E402
 from snake_ai.search.astar import AStar  # noqa: E402
 from snake_ai.search.gbfs import GBFS  # noqa: E402
 
-AGENTS = {'human': None, 'gbfs': GBFS, 'astar': AStar}
+AGENTS = {"human": None, "gbfs": GBFS, "astar": AStar}
 
 
 def positive_int(value):
@@ -46,23 +47,44 @@ def non_negative_int(value):
 
 # snake-ai play
 
+
 def add_play_arguments(parser):
-    parser.add_argument('--agent', choices=AGENTS, default='astar',
-                        help="who plays (default: %(default)s)")
-    parser.add_argument('--games', type=positive_int, default=1,
-                        help="number of games to play; the thesis used 50 (default: %(default)s)")
-    parser.add_argument('--fps', type=non_negative_int, default=constants.FPS,
-                        help="frames per second in the window, 0 = no limit (default: %(default)s)")
-    parser.add_argument('--seed', type=int, default=None,
-                        help="random seed for the food positions, for reproducible runs")
-    parser.add_argument('--headless', action='store_true',
-                        help="run without a window and without frame limit (not for --agent human)")
-    parser.add_argument('--max-steps', type=positive_int, default=None,
-                        help="stop a game after this many frames (default: no limit)")
+    parser.add_argument(
+        "--agent", choices=AGENTS, default="astar", help="who plays (default: %(default)s)"
+    )
+    parser.add_argument(
+        "--games",
+        type=positive_int,
+        default=1,
+        help="number of games to play; the thesis used 50 (default: %(default)s)",
+    )
+    parser.add_argument(
+        "--fps",
+        type=non_negative_int,
+        default=constants.FPS,
+        help="frames per second in the window, 0 = no limit (default: %(default)s)",
+    )
+    parser.add_argument(
+        "--seed",
+        type=int,
+        default=None,
+        help="random seed for the food positions, for reproducible runs",
+    )
+    parser.add_argument(
+        "--headless",
+        action="store_true",
+        help="run without a window and without frame limit (not for --agent human)",
+    )
+    parser.add_argument(
+        "--max-steps",
+        type=positive_int,
+        default=None,
+        help="stop a game after this many frames (default: no limit)",
+    )
 
 
 def check_play_arguments(parser, args):
-    if args.headless and args.agent == 'human':
+    if args.headless and args.agent == "human":
         parser.error("--headless cannot be used with --agent human")
 
 
@@ -82,7 +104,7 @@ def play_game(agent_name, fps=constants.FPS, render=True, max_steps=None):
     while not game.step(agent):
         steps += 1
         if max_steps is not None and steps >= max_steps:
-            return game.score, 'step limit'
+            return game.score, "step limit"
     return game.score, game.end_reason
 
 
@@ -90,16 +112,17 @@ def play(args):
     """Play `args.games` games, printing each score. Return the list of scores."""
     if args.headless:
         # Must be set before the first Game opens the display
-        os.environ['SDL_VIDEODRIVER'] = 'dummy'
+        os.environ["SDL_VIDEODRIVER"] = "dummy"
     if args.seed is not None:
         random.seed(args.seed)
 
     fps = 0 if args.headless else args.fps
     scores = []
     for i in range(args.games):
-        score, reason = play_game(args.agent, fps=fps, render=not args.headless,
-                                  max_steps=args.max_steps)
-        if reason == 'window closed':
+        score, reason = play_game(
+            args.agent, fps=fps, render=not args.headless, max_steps=args.max_steps
+        )
+        if reason == "window closed":
             print("Window closed, stopping.")
             break
         scores.append(score)
@@ -110,8 +133,10 @@ def play(args):
 def print_summary(scores):
     if not scores:
         return
-    print(f"Games: {len(scores)}  Mean: {statistics.mean(scores):.2f}  "
-          f"Min: {min(scores)}  Max: {max(scores)}")
+    print(
+        f"Games: {len(scores)}  Mean: {statistics.mean(scores):.2f}  "
+        f"Min: {min(scores)}  Max: {max(scores)}"
+    )
 
 
 def run_play(args):
@@ -127,22 +152,34 @@ def run_play(args):
 
 COMMANDS = {
     # name: (help, add arguments, check arguments, run)
-    'play': ("play Snake yourself or let a search agent (GBFS or A*) play",
-             add_play_arguments, check_play_arguments, run_play),
-    'train': ("train a PPO agent on the Snake environment (needs the rl extra)",
-              train.add_arguments, train.check_arguments, train.run),
-    'evaluate': ("evaluate a trained PPO agent on Snake (needs the rl extra)",
-                 evaluate.add_arguments, evaluate.check_arguments, evaluate.run),
+    "play": (
+        "play Snake yourself or let a search agent (GBFS or A*) play",
+        add_play_arguments,
+        check_play_arguments,
+        run_play,
+    ),
+    "train": (
+        "train a PPO agent on the Snake environment (needs the rl extra)",
+        train.add_arguments,
+        train.check_arguments,
+        train.run,
+    ),
+    "evaluate": (
+        "evaluate a trained PPO agent on Snake (needs the rl extra)",
+        evaluate.add_arguments,
+        evaluate.check_arguments,
+        evaluate.run,
+    ),
 }
 
 
 def build_parser():
     """Return the top-level parser and a dict with the parser of each command."""
     parser = argparse.ArgumentParser(
-        prog='snake-ai',
-        description="Snake played by search agents (GBFS, A*) and a PPO agent.")
-    parser.add_argument('--version', action='version', version=f"%(prog)s {__version__}")
-    commands = parser.add_subparsers(dest='command', metavar='COMMAND', required=True)
+        prog="snake-ai", description="Snake played by search agents (GBFS, A*) and a PPO agent."
+    )
+    parser.add_argument("--version", action="version", version=f"%(prog)s {__version__}")
+    commands = parser.add_subparsers(dest="command", metavar="COMMAND", required=True)
     subparsers = {}
     for name, (help_text, add_arguments, _, _) in COMMANDS.items():
         description = help_text[0].upper() + help_text[1:] + "."

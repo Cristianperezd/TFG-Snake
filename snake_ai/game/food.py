@@ -21,8 +21,11 @@ class Food:
         self.pos = Vector2(x * constants.BLOCK, y * constants.BLOCK)
 
     def draw(self, display):
-        pygame.draw.rect(display, colors.FOOD,
-                         pygame.Rect(self.pos.x, self.pos.y, constants.BLOCK, constants.BLOCK))
+        pygame.draw.rect(
+            display,
+            colors.FOOD,
+            pygame.Rect(self.pos.x, self.pos.y, constants.BLOCK, constants.BLOCK),
+        )
 
     def detect_collision(self, snake):
         """If the snake's head is on the food, respawn it outside the snake and return True."""

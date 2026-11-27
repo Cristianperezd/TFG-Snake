@@ -9,10 +9,10 @@ from snake_ai.game.snake import Snake, is_out_of_bounds, next_position
 
 # Action index -> (direction, opposite direction that cannot be taken)
 ACTIONS = {
-    0: ('UP', 'DOWN'),
-    1: ('DOWN', 'UP'),
-    2: ('LEFT', 'RIGHT'),
-    3: ('RIGHT', 'LEFT'),
+    0: ("UP", "DOWN"),
+    1: ("DOWN", "UP"),
+    2: ("LEFT", "RIGHT"),
+    3: ("RIGHT", "LEFT"),
 }
 
 
@@ -57,7 +57,7 @@ class SnakeEnv(gym.Env):
         self.info = {}
         self.observation = self.get_observation(action)
 
-        if self.render_mode == 'human':
+        if self.render_mode == "human":
             self.render()
 
         return self.observation, self.reward, self.done, False, self.info
@@ -76,7 +76,7 @@ class SnakeEnv(gym.Env):
         # The snake always starts moving up, which is action 0
         self.observation = self.get_observation(0)
 
-        if self.render_mode == 'human':
+        if self.render_mode == "human":
             pygame.init()
             self.display = pygame.display.set_mode((self.w, self.h))
             self.clock = pygame.time.Clock()
@@ -105,7 +105,9 @@ class SnakeEnv(gym.Env):
 
     def update_board(self):
         self.board = np.zeros((constants.GRID_ROWS, constants.GRID_COLS), dtype=np.int8)
-        self.board[int(self.food.pos.y / constants.BLOCK), int(self.food.pos.x / constants.BLOCK)] = 2
+        self.board[
+            int(self.food.pos.y / constants.BLOCK), int(self.food.pos.x / constants.BLOCK)
+        ] = 2
         for block in self.snake.body:
             self.board[int(block.y / constants.BLOCK), int(block.x / constants.BLOCK)] = 1
 
