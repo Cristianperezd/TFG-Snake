@@ -15,10 +15,10 @@ os.environ.setdefault('PYGAME_HIDE_SUPPORT_PROMPT', '1')
 
 import pygame  # noqa: E402
 
-import constants
-from astar import AStar
-from game import Game
-from gbfs import GBFS
+from snake_ai.game import constants
+from snake_ai.game.game import Game
+from snake_ai.search.astar import AStar
+from snake_ai.search.gbfs import GBFS
 
 AGENTS = {'human': None, 'gbfs': GBFS, 'astar': AStar}
 

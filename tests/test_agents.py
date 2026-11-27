@@ -3,12 +3,10 @@ import io
 
 import pytest
 
-from astar import AStar
-from astar_node import AStarNode
-from gbfs import GBFS
-from gbfs_node import GBFSNode
+from snake_ai.search.astar import AStar, AStarNode
+from snake_ai.search.gbfs import GBFS, GBFSNode
 from helpers import new_game, play_astar
-from snake import is_out_of_bounds, next_position
+from snake_ai.game.snake import is_out_of_bounds, next_position
 
 
 def follow(game, path):

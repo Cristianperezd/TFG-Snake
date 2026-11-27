@@ -12,7 +12,7 @@ import math
 import os
 import time
 
-from snake_env import SnakeEnv
+from snake_ai.rl.snake_env import SnakeEnv
 
 # The thesis run: 499 checkpoints of 10,000 steps
 DEFAULT_TIMESTEPS = 4_990_000

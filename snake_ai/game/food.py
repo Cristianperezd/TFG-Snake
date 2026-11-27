@@ -3,8 +3,7 @@ import random
 import pygame
 from pygame.math import Vector2
 
-import colors
-import constants
+from snake_ai.game import colors, constants
 
 
 class Food:

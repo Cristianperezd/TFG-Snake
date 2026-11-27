@@ -4,12 +4,12 @@ import random
 import pygame
 import pytest
 
-import evaluate_ppo
-import main
-import train_ppo
-from astar_node import AStarNode
-from game import Game
-from gbfs_node import GBFSNode
+from snake_ai import cli as main
+from snake_ai.rl import evaluate as evaluate_ppo
+from snake_ai.rl import train as train_ppo
+from snake_ai.search.astar import AStarNode
+from snake_ai.game.game import Game
+from snake_ai.search.gbfs import GBFSNode
 from helpers import new_game, read_golden
 
 

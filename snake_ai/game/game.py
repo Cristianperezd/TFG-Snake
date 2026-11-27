@@ -1,10 +1,9 @@
 import numpy as np
 import pygame
 
-import colors
-import constants
-from food import Food
-from snake import Snake
+from snake_ai.game import colors, constants
+from snake_ai.game.food import Food
+from snake_ai.game.snake import Snake
 
 KEY_DIRECTIONS = {
     pygame.K_UP: ('UP', 'DOWN'),

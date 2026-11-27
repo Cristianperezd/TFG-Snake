@@ -1,8 +1,15 @@
 import heapq
 
-import constants
-from gbfs_node import GBFSNode
-from search_agent import SearchAgent
+from snake_ai.game import constants
+from snake_ai.search.node import Node
+from snake_ai.search.search_agent import SearchAgent
+
+
+class GBFSNode(Node):
+    """Node ordered by the heuristic h only."""
+
+    def __lt__(self, other):
+        return self.h < other.h
 
 
 class GBFS(SearchAgent):
