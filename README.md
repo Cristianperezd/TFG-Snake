@@ -162,7 +162,7 @@ import snake_ai.rl  # registers SnakeAI-v0
 env = gym.make("SnakeAI-v0", render_mode="rgb_array")
 obs, info = env.reset(seed=0)
 obs, reward, terminated, truncated, info = env.step(env.action_space.sample())
-frame = env.render()  # 500x700x3 uint8 array (board and side panel), no window needed
+frame = env.render()  # 500x500x3 uint8 array of the board, no window needed
 ```
 
 - `render_mode`: `None` (default, no drawing), `"human"` (a window, updated every step) or `"rgb_array"` (`render()` returns the frame).

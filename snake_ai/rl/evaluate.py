@@ -87,7 +87,7 @@ def run(args):
 
 def capture(env, recorder):
     if recorder is not None:
-        recorder.add_frame(env.display if env.render_mode == "human" else env.render())
+        recorder.add_frame(env.display if env.render_mode == "human" else env.frame())
 
 
 def play_episodes(args, env, model, recorder):
