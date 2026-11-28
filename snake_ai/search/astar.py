@@ -31,6 +31,7 @@ class AStar(SearchAgent):
         visited = []
         while queue:
             node = queue.pop(0)
+            self.expanded.append(node.snake.get_head())
             visited.append(tuple(node.board.flatten()))
             if self.is_goal(node):
                 return self.get_solution(node)

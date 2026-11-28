@@ -24,6 +24,7 @@ class GBFS(SearchAgent):
         explored = 0
         while queue:
             node = heapq.heappop(queue)
+            self.expanded.append(node.snake.get_head())
             visited.append(tuple(node.board.flatten()))
             if explored == constants.MAX_EXPANDED_NODES:
                 return "END"

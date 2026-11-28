@@ -26,5 +26,9 @@ TEXT = (232, 236, 243)
 TEXT_MUTED = (130, 140, 160)
 ACCENT = (255, 202, 87)
 
+# Search overlay (--show-path), with alpha
+PATH = (255, 202, 87, 190)
+EXPLORED = (90, 150, 255, 40)
+
 # Pause and game-over overlay, with alpha
 OVERLAY = (10, 12, 16, 170)
