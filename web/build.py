@@ -8,6 +8,11 @@ pygbag packs a folder with a main.py. This script puts web/main.py and the
 `snake_ai` package in build/snake-ai/ and runs pygbag on it. `snake_ai.rl`
 (the PPO agent, which needs PyTorch and Gymnasium) is left out: the browser
 version does not use it. pygbag downloads its Python runtime from its CDN.
+
+To serve build/snake-ai/build/web/ with another server (e.g. python -m
+http.server), open it at http://127.0.0.1:PORT, not http://localhost:PORT: on
+"localhost" the page fetches numpy and pygame from localhost:8000/cdn/, which
+only pygbag's own server (--serve) provides, and it stays on "Loading".
 """
 
 import argparse

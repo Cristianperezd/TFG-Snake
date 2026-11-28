@@ -143,6 +143,8 @@ pip install pygbag==0.9.3
 python web/build.py --serve       # then open http://localhost:8000
 ```
 
+To serve the built page (`build/snake-ai/build/web/`) with another server, such as `python -m http.server`, open it at `http://127.0.0.1:PORT` rather than `http://localhost:PORT`: on `localhost` pygbag loads numpy and pygame from `localhost:8000/cdn/`, which only its own server provides, and the page stays on "Loading".
+
 `web/main.py` is the page's program and `snake_ai/browser.py` its menu and game loop. The browser needs a loop that never blocks, so it uses `Game.advance`, the part of `Game.step` that plays one frame without reading events or waiting; the games are the same frame by frame (a test checks it against the regression traces).
 
 ### PPO
