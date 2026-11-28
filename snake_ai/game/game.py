@@ -1,7 +1,7 @@
 import numpy as np
 import pygame
 
-from snake_ai.game import colors, constants
+from snake_ai.game import colors, constants, controls
 from snake_ai.game.food import Food
 from snake_ai.game.render import WINDOW_SIZE, Renderer, stat_rows
 from snake_ai.game.snake import Snake
@@ -28,7 +28,8 @@ class Game:
     `best` and `mean` (over the games already played, None if there are none).
 
     When the game ends, `end_reason` says why: 'collision', 'no path' (the
-    agent could not find a path to the food) or 'window closed'.
+    agent could not find a path to the food) or 'window closed' (the window
+    was closed or Esc pressed). When the game is drawn, Space pauses it.
     """
 
     def __init__(self, fps=constants.FPS, render=True, hud=None):
@@ -84,11 +85,31 @@ class Game:
             fps=self.clock.get_fps(),
         )
 
-    def draw(self):
+    def draw(self, overlay=None):
+        """Draw the current frame, with an optional (title, subtitle) message over the board."""
         self.renderer.draw_frame(
-            self.display, self.snake, self.food, self.hud.get("agent", "Snake"), self.hud_rows()
+            self.display,
+            self.snake,
+            self.food,
+            self.hud.get("agent", "Snake"),
+            self.hud_rows(),
+            hints=controls.HINTS,
+            overlay=overlay,
         )
         pygame.display.flip()
+
+    def pause(self):
+        """Wait until Space is pressed again. Return False if the user quits instead."""
+        self.draw(overlay=controls.PAUSED)
+        return controls.wait(self.clock, skip_keys=(pygame.K_SPACE,))
+
+    def show_game_over(self, seconds=0):
+        """Draw the final board with why the game ended, and keep it on screen for
+        `seconds` (Space or Enter skips it). Return False if the user quits."""
+        self.draw(overlay=controls.game_over_text(self.end_reason))
+        if seconds > 0:
+            return controls.wait(self.clock, seconds)
+        return True
 
     def step(self, agent=None):
         """Advance the game by one frame.
@@ -100,7 +121,9 @@ class Game:
         The final score is in `score`.
         """
         for event in pygame.event.get():
-            if event.type == pygame.QUIT:
+            if controls.is_quit(event):
+                return self._end("window closed")
+            if self.render and controls.is_pause(event) and not self.pause():
                 return self._end("window closed")
             if agent is None and event.type == pygame.KEYDOWN and event.key in KEY_DIRECTIONS:
                 new_direction, opposite = KEY_DIRECTIONS[event.key]

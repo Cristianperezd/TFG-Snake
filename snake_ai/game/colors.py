@@ -25,3 +25,6 @@ FOOD_LEAF = (110, 190, 80)
 TEXT = (232, 236, 243)
 TEXT_MUTED = (130, 140, 160)
 ACCENT = (255, 202, 87)
+
+# Pause and game-over overlay, with alpha
+OVERLAY = (10, 12, 16, 170)

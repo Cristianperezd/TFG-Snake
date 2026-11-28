@@ -226,3 +226,83 @@ def test_evaluate_defaults_and_options():
         ]
     )
     assert (args.episodes, args.render, args.seed, args.max_steps) == (5, False, 1, 100)
+
+
+# Window controls: pause, quit and the game-over message (drawing only)
+
+
+def key_event(key):
+    return pygame.event.Event(pygame.KEYDOWN, key=key)
+
+
+def test_escape_ends_the_game_like_closing_the_window():
+    game = new_game(0)
+    pygame.event.post(key_event(pygame.K_ESCAPE))
+    assert game.step() is True
+    assert game.end_reason == "window closed"
+
+
+def test_space_pauses_until_pressed_again_without_changing_the_game():
+    random.seed(5)
+    paused = Game(fps=0)
+    random.seed(5)
+    normal = Game(fps=0, render=False)
+    pygame.event.clear()
+    pygame.event.post(key_event(pygame.K_SPACE))
+    # Resume after 100 ms
+    pygame.time.set_timer(key_event(pygame.K_SPACE), 100, loops=1)
+    start = pygame.time.get_ticks()
+    assert paused.step() is False
+    assert pygame.time.get_ticks() - start >= 90
+    assert normal.step() is False
+    assert paused.snake.body == normal.snake.body
+    assert paused.food.pos == normal.food.pos
+
+
+def test_escape_while_paused_quits():
+    game = new_game(0)
+    pygame.event.clear()
+    pygame.event.post(key_event(pygame.K_SPACE))
+    pygame.time.set_timer(key_event(pygame.K_ESCAPE), 50, loops=1)
+    assert game.step() is True
+    assert game.end_reason == "window closed"
+
+
+def test_space_does_not_pause_without_a_window():
+    random.seed(0)
+    game = Game(fps=0, render=False)
+    pygame.event.post(key_event(pygame.K_SPACE))
+    assert game.step() is False
+
+
+def test_game_over_message_waits_and_can_be_skipped_or_quit():
+    game = new_game(0)
+    while not game.step():
+        pass
+    assert game.show_game_over(0) is True  # just drawn
+    pygame.event.post(key_event(pygame.K_RETURN))
+    assert game.show_game_over(5) is True  # skipped at once
+    pygame.event.post(key_event(pygame.K_ESCAPE))
+    assert game.show_game_over(5) is False
+
+
+def test_play_with_a_window_and_no_frame_limit_skips_the_game_over_delay(capsys):
+    args = cli.parse_args(
+        ["play", "--games", "2", "--max-steps", "50", "--seed", "1", "--fps", "0"]
+    )
+    assert args.game_over_delay == 1.5
+    start = pygame.time.get_ticks()
+    assert len(cli.play(args)) == 2
+    assert pygame.time.get_ticks() - start < 1500
+    assert "Game 2: score" in capsys.readouterr().out
+
+
+def test_window_and_headless_runs_give_the_same_scores():
+    argv = ["play", "--games", "2", "--max-steps", "300", "--seed", "4", "--fps", "0"]
+    assert cli.play(cli.parse_args(argv)) == cli.play(cli.parse_args(argv + ["--headless"]))
+
+
+def test_game_over_delay_must_not_be_negative():
+    with pytest.raises(SystemExit):
+        cli.parse_args(["play", "--game-over-delay", "-1"])
+    assert cli.parse_args(["play", "--game-over-delay", "0"]).game_over_delay == 0

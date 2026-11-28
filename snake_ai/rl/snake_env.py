@@ -5,7 +5,7 @@ import numpy as np
 import pygame
 from gymnasium import spaces
 
-from snake_ai.game import constants, render
+from snake_ai.game import constants, controls, render
 from snake_ai.game.food import Food
 from snake_ai.game.snake import Snake, is_out_of_bounds, next_position
 
@@ -46,6 +46,9 @@ class SnakeEnv(gym.Env):
     `hud` (a dict, empty by default) adds rows to the side panel: `episode`,
     `episodes`, and `best` and `mean` over the finished episodes. It is only
     used for drawing.
+
+    In the "human" window Space pauses and Esc or closing the window sets
+    `quit_requested`, for the caller to stop.
     """
 
     metadata = {"render_modes": ["human", "rgb_array"], "render_fps": 60}
@@ -69,6 +72,7 @@ class SnakeEnv(gym.Env):
         self.clock = None
         self.renderer = None
         self.hud = {}
+        self.quit_requested = False
 
     def step(self, action):
         direction, opposite = ACTIONS[int(action)]
@@ -139,7 +143,7 @@ class SnakeEnv(gym.Env):
         observation.extend(self.check_safe_directions())
         return np.array(observation, dtype=np.float32)
 
-    def _draw(self, surface):
+    def _draw(self, surface, overlay=None):
         if self.renderer is None:
             self.renderer = render.Renderer()
         rows = render.stat_rows(
@@ -152,14 +156,21 @@ class SnakeEnv(gym.Env):
             fps=self.clock.get_fps() if self.clock is not None else None,
             label="Episode",
         )
-        self.renderer.draw_frame(surface, self.snake, self.food, "PPO", rows)
+        hints = controls.HINTS if self.render_mode == "human" else ()
+        self.renderer.draw_frame(
+            surface, self.snake, self.food, "PPO", rows, hints=hints, overlay=overlay
+        )
+
+    def frame(self, overlay=None):
+        """The current frame as a HxWx3 uint8 array, drawn off-screen (no window
+        is needed), with an optional (title, subtitle) message over the board."""
+        surface = pygame.Surface(render.WINDOW_SIZE)
+        self._draw(surface, overlay)
+        return np.transpose(pygame.surfarray.array3d(surface), (1, 0, 2)).astype(np.uint8)
 
     def render(self):
         if self.render_mode == "rgb_array":
-            # Draw on an off-screen surface: no window is needed
-            surface = pygame.Surface(render.WINDOW_SIZE)
-            self._draw(surface)
-            return np.transpose(pygame.surfarray.array3d(surface), (1, 0, 2)).astype(np.uint8)
+            return self.frame()
 
         if self.render_mode == "human":
             if self.display is None:
@@ -167,11 +178,33 @@ class SnakeEnv(gym.Env):
                 pygame.display.set_caption("Snake AI - PPO")
                 self.display = pygame.display.set_mode(render.WINDOW_SIZE)
                 self.clock = pygame.time.Clock()
-            pygame.event.pump()  # Keep the window responsive
+            self._handle_events()
             self._draw(self.display)
             pygame.display.flip()
             self.clock.tick(self.metadata["render_fps"])
         return None
+
+    def _handle_events(self):
+        for event in pygame.event.get():
+            if controls.is_quit(event):
+                self.quit_requested = True
+            elif controls.is_pause(event):
+                self._draw(self.display, overlay=controls.PAUSED)
+                pygame.display.flip()
+                if not controls.wait(self.clock, skip_keys=(pygame.K_SPACE,)):
+                    self.quit_requested = True
+
+    def show_game_over(self, reason, seconds=0):
+        """In the "human" window, draw the final frame with why the episode ended
+        ('collision' or 'step limit') and keep it for `seconds` (Space or Enter
+        skips it). Return False if the user quits."""
+        if self.render_mode != "human" or self.display is None:
+            return True
+        self._draw(self.display, overlay=controls.game_over_text(reason))
+        pygame.display.flip()
+        if seconds > 0 and not controls.wait(self.clock, seconds):
+            self.quit_requested = True
+        return not self.quit_requested
 
     def update_board(self):
         self.board = np.zeros((constants.GRID_ROWS, constants.GRID_COLS), dtype=np.int8)
