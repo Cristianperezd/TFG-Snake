@@ -33,6 +33,7 @@ jobs:
           cd build/snake-ai/build/web
           ls -l
           test -f index.html
+          grep -q 'id="loader"' index.html  # The custom loading screen (web/template.tmpl)
           tar tzf snake-ai.tar.gz | tee files.txt
           grep -q "snake_ai/browser.py" files.txt
           ! grep -q "snake_ai/rl" files.txt
