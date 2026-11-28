@@ -62,37 +62,12 @@ PPO is trained with Stable Baselines 3 (`MlpPolicy`).
 
 The code is a Python package, `snake_ai`, with three subpackages: `game`, `search` and `rl`. The command-line interface (`snake_ai.cli`) plays games with `Game` and a search agent (`snake-ai play`), or trains and evaluates PPO on `SnakeEnv` (`snake-ai train`, `snake-ai evaluate`).
 
-```mermaid
-flowchart TB
-    CLI(["snake-ai<br/>play · train · evaluate"])
-
-    subgraph game ["snake_ai.game"]
-        Game["Game<br/>loop · board · score"]
-        Snake["Snake"]
-        Food["Food"]
-    end
-
-    subgraph search ["snake_ai.search"]
-        SA["SearchAgent<br/>simulate moves · rebuild path"]
-        GBFS["GBFS<br/>orders by h"]
-        AStar["A*<br/>orders by g + h"]
-    end
-
-    subgraph rl ["snake_ai.rl"]
-        Env["SnakeEnv<br/>gymnasium.Env"]
-        PPO["PPO<br/>Stable Baselines 3"]
-    end
-
-    CLI -- play --> Game
-    CLI -- "train · evaluate" --> PPO
-    Game --> Snake
-    Game --> Food
-    Game -- "asks for a path" --> SA
-    GBFS -. extends .-> SA
-    AStar -. extends .-> SA
-    PPO -- "action → observation, reward" --> Env
-    Env -. "reuses Snake and Food" .-> game
-```
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/architecture-dark.svg">
+    <img src="docs/architecture-light.svg" alt="Architecture: the snake-ai command plays games with Game, which asks SearchAgent (GBFS, A*) for paths, and trains and evaluates PPO on SnakeEnv, which reuses Snake and Food" width="760">
+  </picture>
+</p>
 
 The original class diagram from the thesis (PlantUML) is available at [`v1.0.0`](../../tree/v1.0.0/Documentation).
 

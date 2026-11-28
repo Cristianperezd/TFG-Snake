@@ -1,0 +1,63 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="940" height="340" viewBox="0 0 940 340" role="img" aria-label="Architecture of the snake_ai package">
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#9198a1"/></marker></defs>
+<rect x="370" y="14" width="200" height="46" rx="23" fill="#e6edf3"/>
+<text x="470" y="34" text-anchor="middle" font-family="ui-monospace,SFMono-Regular,'SF Mono',Menlo,Consolas,monospace" font-size="14" font-weight="600" fill="#0d1117">snake-ai</text>
+<text x="470" y="51" text-anchor="middle" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif" font-size="11.5" fill="#0d1117" opacity="0.8">play · train · evaluate</text>
+<rect x="20" y="96" width="260" height="232" rx="14" fill="#161b22" stroke="#30363d"/>
+<rect x="20" y="96" width="260" height="5" rx="2.5" fill="#58a6ff"/>
+<text x="40" y="126" font-family="ui-monospace,SFMono-Regular,'SF Mono',Menlo,Consolas,monospace" font-size="13" font-weight="600" fill="#58a6ff">snake_ai.search</text>
+<rect x="340" y="96" width="260" height="232" rx="14" fill="#161b22" stroke="#30363d"/>
+<rect x="340" y="96" width="260" height="5" rx="2.5" fill="#3fb950"/>
+<text x="360" y="126" font-family="ui-monospace,SFMono-Regular,'SF Mono',Menlo,Consolas,monospace" font-size="13" font-weight="600" fill="#3fb950">snake_ai.game</text>
+<rect x="660" y="96" width="260" height="232" rx="14" fill="#161b22" stroke="#30363d"/>
+<rect x="660" y="96" width="260" height="5" rx="2.5" fill="#bc8cff"/>
+<text x="680" y="126" font-family="ui-monospace,SFMono-Regular,'SF Mono',Menlo,Consolas,monospace" font-size="13" font-weight="600" fill="#bc8cff">snake_ai.rl</text>
+<rect x="40" y="142" width="220" height="54" rx="9" fill="#0d1117" stroke="#3d444d"/>
+<rect x="40" y="154" width="3" height="30" rx="1.5" fill="#58a6ff"/>
+<text x="150.0" y="166" text-anchor="middle" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif" font-size="14" font-weight="600" fill="#e6edf3">SearchAgent</text>
+<text x="150.0" y="184" text-anchor="middle" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif" font-size="11.5" fill="#9198a1">simulates moves · rebuilds the path</text>
+<rect x="40" y="254" width="100" height="54" rx="9" fill="#0d1117" stroke="#3d444d"/>
+<rect x="40" y="266" width="3" height="30" rx="1.5" fill="#58a6ff"/>
+<text x="90.0" y="278" text-anchor="middle" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif" font-size="14" font-weight="600" fill="#e6edf3">GBFS</text>
+<text x="90.0" y="296" text-anchor="middle" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif" font-size="11.5" fill="#9198a1">orders by h</text>
+<rect x="160" y="254" width="100" height="54" rx="9" fill="#0d1117" stroke="#3d444d"/>
+<rect x="160" y="266" width="3" height="30" rx="1.5" fill="#58a6ff"/>
+<text x="210.0" y="278" text-anchor="middle" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif" font-size="14" font-weight="600" fill="#e6edf3">A*</text>
+<text x="210.0" y="296" text-anchor="middle" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif" font-size="11.5" fill="#9198a1">orders by g + h</text>
+<rect x="360" y="142" width="220" height="54" rx="9" fill="#0d1117" stroke="#3d444d"/>
+<rect x="360" y="154" width="3" height="30" rx="1.5" fill="#3fb950"/>
+<text x="470.0" y="166" text-anchor="middle" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif" font-size="14" font-weight="600" fill="#e6edf3">Game</text>
+<text x="470.0" y="184" text-anchor="middle" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif" font-size="11.5" fill="#9198a1">loop · board · score</text>
+<rect x="360" y="254" width="100" height="54" rx="9" fill="#0d1117" stroke="#3d444d"/>
+<rect x="360" y="266" width="3" height="30" rx="1.5" fill="#3fb950"/>
+<text x="410.0" y="286" text-anchor="middle" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif" font-size="14" font-weight="600" fill="#e6edf3">Snake</text>
+<rect x="480" y="254" width="100" height="54" rx="9" fill="#0d1117" stroke="#3d444d"/>
+<rect x="480" y="266" width="3" height="30" rx="1.5" fill="#3fb950"/>
+<text x="530.0" y="286" text-anchor="middle" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif" font-size="14" font-weight="600" fill="#e6edf3">Food</text>
+<rect x="680" y="142" width="220" height="54" rx="9" fill="#0d1117" stroke="#3d444d"/>
+<rect x="680" y="154" width="3" height="30" rx="1.5" fill="#bc8cff"/>
+<text x="790.0" y="166" text-anchor="middle" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif" font-size="14" font-weight="600" fill="#e6edf3">PPO</text>
+<text x="790.0" y="184" text-anchor="middle" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif" font-size="11.5" fill="#9198a1">Stable Baselines 3</text>
+<rect x="680" y="254" width="220" height="54" rx="9" fill="#0d1117" stroke="#3d444d"/>
+<rect x="680" y="266" width="3" height="30" rx="1.5" fill="#bc8cff"/>
+<text x="790.0" y="278" text-anchor="middle" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif" font-size="14" font-weight="600" fill="#e6edf3">SnakeEnv</text>
+<text x="790.0" y="296" text-anchor="middle" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif" font-size="11.5" fill="#9198a1">gymnasium.Env</text>
+<path d="M510,60 V140" fill="none" stroke="#9198a1" stroke-width="1.5" marker-end="url(#arrow)"/>
+<text x="518" y="84" text-anchor="start" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif" font-size="11.5" fill="#9198a1">play</text>
+<path d="M570,37 H790 V140" fill="none" stroke="#9198a1" stroke-width="1.5" marker-end="url(#arrow)"/>
+<text x="680" y="30" text-anchor="middle" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif" font-size="11.5" fill="#9198a1">train · evaluate</text>
+<path d="M410,196 V252" fill="none" stroke="#9198a1" stroke-width="1.5" marker-end="url(#arrow)"/>
+<path d="M530,196 V252" fill="none" stroke="#9198a1" stroke-width="1.5" marker-end="url(#arrow)"/>
+<path d="M90,254 V198" fill="none" stroke="#9198a1" stroke-width="1.5" stroke-dasharray="5 4" marker-end="url(#arrow)"/>
+<path d="M210,254 V198" fill="none" stroke="#9198a1" stroke-width="1.5" stroke-dasharray="5 4" marker-end="url(#arrow)"/>
+<text x="150" y="230" text-anchor="middle" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif" font-size="11.5" fill="#9198a1">extend</text>
+<path d="M360,169 H262" fill="none" stroke="#9198a1" stroke-width="1.5" marker-end="url(#arrow)"/>
+<text x="311" y="160" text-anchor="middle" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif" font-size="11.5" fill="#9198a1">asks for</text>
+<text x="311" y="186" text-anchor="middle" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif" font-size="11.5" fill="#9198a1">a path</text>
+<path d="M790,196 V252" fill="none" stroke="#9198a1" stroke-width="1.5" marker-end="url(#arrow)"/>
+<text x="782" y="228" text-anchor="end" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif" font-size="11.5" fill="#9198a1">action</text>
+<text x="798" y="228" text-anchor="start" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif" font-size="11.5" fill="#9198a1">obs, reward</text>
+<path d="M680,281 H582" fill="none" stroke="#9198a1" stroke-width="1.5" stroke-dasharray="5 4" marker-end="url(#arrow)"/>
+<text x="631" y="272" text-anchor="middle" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif" font-size="11.5" fill="#9198a1">reuses</text>
+<text x="631" y="298" text-anchor="middle" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif" font-size="11.5" fill="#9198a1">Snake, Food</text>
+</svg>
