@@ -5,7 +5,7 @@ Versions follow [Semantic Versioning](https://semver.org/):
 - **1.x** is the thesis project, cleaned up and made reproducible. Agent behaviour and results match the thesis.
 - **2.x** will contain improvements beyond the thesis.
 
-## [1.6.0] - Unreleased
+## [1.6.0] - 2026-11-28
 
 Better visualization. Only the drawing changes: games, agents' decisions, observations, rewards and scores are the same as in 1.5.0 (the regression tests pass unchanged, and headless runs print exactly the same output).
 
@@ -23,6 +23,10 @@ Better visualization. Only the drawing changes: games, agents' decisions, observ
 - `SnakeEnv` renders with the same look. The `"human"` window adds the side panel; `"rgb_array"` frames still show only the board (500×500×3), and the new `SnakeEnv.frame()` returns the full frame, panel included.
 - `docs/astar-demo.gif` was recorded again with `--record`, with the new look and `--show-path`.
 - CI installs the `record` extra to run the recording tests.
+- README: the Mermaid architecture diagram was replaced by an SVG diagram, with light and dark variants that follow the GitHub theme.
+
+### Fixed
+- In human play, driving the snake off the bottom or right edge of the board raised an `IndexError` instead of ending the game: the board was updated before checking the collision. The bug dates back to the thesis code; the search agents never leave the board, so their results are unchanged.
 
 ## [1.5.0] - 2026-11-27
 
@@ -121,7 +125,7 @@ The regression tests confirm that A\* games, GBFS searches and RL environment ep
 
 Original submission of the Bachelor's Thesis (Universitat Autònoma de Barcelona).
 
-[1.6.0]: https://github.com/Cristianperezd/TFG-Snake/compare/v1.5.0...HEAD
+[1.6.0]: https://github.com/Cristianperezd/TFG-Snake/compare/v1.5.0...v1.6.0
 [1.5.0]: https://github.com/Cristianperezd/TFG-Snake/compare/v1.4.0...v1.5.0
 [1.4.0]: https://github.com/Cristianperezd/TFG-Snake/compare/v1.3.0...v1.4.0
 [1.3.0]: https://github.com/Cristianperezd/TFG-Snake/compare/v1.2.0...v1.3.0
