@@ -1,7 +1,6 @@
-import pygame
 from pygame.math import Vector2
 
-from snake_ai.game import colors, constants
+from snake_ai.game import constants
 
 
 def next_position(position, direction):
@@ -25,7 +24,7 @@ def is_out_of_bounds(position):
 
 
 class Snake:
-    """Snake position, movement, collisions and rendering."""
+    """Snake position, movement and collisions (drawing is in `render`)."""
 
     def __init__(self):
         self.direction = "UP"
@@ -43,13 +42,6 @@ class Snake:
 
     def get_head(self):
         return self.body[0]
-
-    def draw(self, display):
-        for index, block in enumerate(self.body):
-            color = colors.SNAKE_HEAD if index == 0 else colors.SNAKE_BODY
-            pygame.draw.rect(
-                display, color, pygame.Rect(block.x, block.y, constants.BLOCK, constants.BLOCK)
-            )
 
     def move(self):
         """Add a new head in the current direction. The caller removes the tail

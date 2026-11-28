@@ -3,7 +3,7 @@ import random
 import numpy as np
 import pytest
 
-from snake_ai.game import colors
+from snake_ai.game import colors, constants
 from snake_ai.rl.snake_env import SnakeEnv
 
 
@@ -146,12 +146,15 @@ def test_rgb_array_render_returns_the_frame():
     env = SnakeEnv(render_mode="rgb_array")
     env.reset(seed=0)
     frame = env.render()
-    assert frame.shape == (500, 500, 3)
+    # The board (500 x 500) and the side panel to its right
+    assert frame.shape == (constants.WINDOW_HEIGHT, constants.WINDOW_WIDTH, 3)
+    assert frame.shape == (500, 700, 3)
     assert frame.dtype == np.uint8
     head = env.snake.get_head()
     food = env.food.pos
-    assert tuple(frame[int(head.y) + 1, int(head.x) + 1]) == colors.SNAKE_HEAD
-    assert tuple(frame[int(food.y) + 1, int(food.x) + 1]) == colors.FOOD
+    middle = constants.BLOCK // 2
+    assert tuple(frame[int(head.y) + middle, int(head.x) + middle]) == colors.SNAKE_HEAD
+    assert tuple(frame[int(food.y) + middle, int(food.x) + middle]) == colors.FOOD
 
 
 def test_render_without_render_mode_returns_none():
@@ -178,7 +181,7 @@ def test_registered_with_gymnasium():
     env = gym.make(ENV_ID, render_mode="rgb_array", max_episode_steps=5)
     obs, _ = env.reset(seed=1)
     assert env.observation_space.contains(obs)
-    assert env.render().shape == (500, 500, 3)
+    assert env.render().shape == (500, 700, 3)
     truncated = False
     for _ in range(5):
         _, _, terminated, truncated, _ = env.step(2)

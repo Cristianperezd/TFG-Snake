@@ -1,13 +1,12 @@
 import random
 
-import pygame
 from pygame.math import Vector2
 
-from snake_ai.game import colors, constants
+from snake_ai.game import constants
 
 
 class Food:
-    """Food position, respawning and rendering."""
+    """Food position and respawning (drawing is in `render`)."""
 
     def __init__(self):
         # The first apple always appears in the second column, at a random row
@@ -19,13 +18,6 @@ class Food:
         x = random.randint(0, (constants.WIDTH - constants.BLOCK) // constants.BLOCK)
         y = random.randint(0, (constants.HEIGHT - constants.BLOCK) // constants.BLOCK)
         self.pos = Vector2(x * constants.BLOCK, y * constants.BLOCK)
-
-    def draw(self, display):
-        pygame.draw.rect(
-            display,
-            colors.FOOD,
-            pygame.Rect(self.pos.x, self.pos.y, constants.BLOCK, constants.BLOCK),
-        )
 
     def detect_collision(self, snake):
         """If the snake's head is on the food, respawn it outside the snake and return True."""

@@ -29,6 +29,7 @@ from snake_ai.search.astar import AStar  # noqa: E402
 from snake_ai.search.gbfs import GBFS  # noqa: E402
 
 AGENTS = {"human": None, "gbfs": GBFS, "astar": AStar}
+AGENT_NAMES = {"human": "Human", "gbfs": "GBFS", "astar": "A*"}
 
 
 def positive_int(value):
@@ -96,9 +97,11 @@ def make_agent(name, game):
     return agent_class(agent_class.node_class(game.board, game.snake, game.food))
 
 
-def play_game(agent_name, fps=constants.FPS, render=True, max_steps=None):
-    """Play one game. Return (score, end reason)."""
-    game = Game(fps=fps, render=render)
+def play_game(agent_name, fps=constants.FPS, render=True, max_steps=None, hud=None):
+    """Play one game. Return (score, end reason).
+
+    `hud` is shown in the side panel of the window (see `Game`)."""
+    game = Game(fps=fps, render=render, hud={"agent": AGENT_NAMES[agent_name], **(hud or {})})
     agent = make_agent(agent_name, game)
     steps = 0
     while not game.step(agent):
@@ -119,8 +122,14 @@ def play(args):
     fps = 0 if args.headless else args.fps
     scores = []
     for i in range(args.games):
+        hud = {
+            "game": i + 1,
+            "games": args.games,
+            "best": max(scores) if scores else None,
+            "mean": statistics.mean(scores) if scores else None,
+        }
         score, reason = play_game(
-            args.agent, fps=fps, render=not args.headless, max_steps=args.max_steps
+            args.agent, fps=fps, render=not args.headless, max_steps=args.max_steps, hud=hud
         )
         if reason == "window closed":
             print("Window closed, stopping.")

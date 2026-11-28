@@ -3,6 +3,7 @@ import pygame
 
 from snake_ai.game import colors, constants
 from snake_ai.game.food import Food
+from snake_ai.game.render import WINDOW_SIZE, Renderer, stat_rows
 from snake_ai.game.snake import Snake
 
 KEY_DIRECTIONS = {
@@ -22,21 +23,28 @@ class Game:
     skips drawing, which is useful for fast headless evaluation. Neither
     affects the game itself.
 
+    `hud` fills the side panel: a dict with the keys `agent` (the name shown
+    as its title) and, optionally, `game` and `games` (current game and total),
+    `best` and `mean` (over the games already played, None if there are none).
+
     When the game ends, `end_reason` says why: 'collision', 'no path' (the
     agent could not find a path to the food) or 'window closed'.
     """
 
-    def __init__(self, fps=constants.FPS, render=True):
+    def __init__(self, fps=constants.FPS, render=True, hud=None):
         pygame.init()
         self.fps = fps
         self.render = render
+        self.hud = hud or {}
         self.end_reason = None
         self.w = constants.WIDTH
         self.h = constants.HEIGHT
-        self.display = pygame.display.set_mode((self.w, self.h))
+        self.display = pygame.display.set_mode(WINDOW_SIZE)
         self.display.fill(colors.BACKGROUND)
+        if render:
+            pygame.display.set_caption(f"Snake AI - {self.hud.get('agent', 'Snake')}")
         self.clock = pygame.time.Clock()
-        self.font = pygame.font.Font(None, 36)
+        self._renderer = None
 
         self.score = 0
         self.snake = Snake()
@@ -59,12 +67,27 @@ class Game:
         for block in self.snake.body:
             self.board[int(block.y / constants.BLOCK), int(block.x / constants.BLOCK)] = 1
 
+    @property
+    def renderer(self):
+        if self._renderer is None:  # Only created when something is drawn
+            self._renderer = Renderer()
+        return self._renderer
+
+    def hud_rows(self):
+        return stat_rows(
+            self.score,
+            len(self.snake.body),
+            number=self.hud.get("game"),
+            total=self.hud.get("games"),
+            best=self.hud.get("best"),
+            mean=self.hud.get("mean"),
+            fps=self.clock.get_fps(),
+        )
+
     def draw(self):
-        self.display.fill(colors.BACKGROUND)
-        self.snake.draw(display=self.display)
-        self.food.draw(display=self.display)
-        score_text = self.font.render("Score: " + str(self.score), True, colors.TEXT)
-        self.display.blit(score_text, (10, 10))
+        self.renderer.draw_frame(
+            self.display, self.snake, self.food, self.hud.get("agent", "Snake"), self.hud_rows()
+        )
         pygame.display.flip()
 
     def step(self, agent=None):
