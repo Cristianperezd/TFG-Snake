@@ -5,7 +5,7 @@ import numpy as np
 import pygame
 from gymnasium import spaces
 
-from snake_ai.game import colors, constants
+from snake_ai.game import constants, render
 from snake_ai.game.food import Food
 from snake_ai.game.snake import Snake, is_out_of_bounds, next_position
 
@@ -34,12 +34,18 @@ class SnakeEnv(gym.Env):
     Arguments:
         render_mode: None (no drawing), "human" (draw every step in a window)
             or "rgb_array" (`render()` returns the frame as an HxWx3 array).
+            Frames have the same look as `snake-ai play`: the board and a side
+            panel, WINDOW_HEIGHT x WINDOW_WIDTH pixels.
         max_episode_steps: if set, an episode is truncated after this many
             steps. The default, None, never truncates, as in the thesis.
 
     Seeding: the food positions come from Python's `random` module, as in the
     thesis. `reset(seed=n)` seeds it, so seeded resets are reproducible;
     `reset()` leaves it alone.
+
+    `hud` (a dict, empty by default) adds rows to the side panel: `episode`,
+    `episodes`, and `best` and `mean` over the finished episodes. It is only
+    used for drawing.
     """
 
     metadata = {"render_modes": ["human", "rgb_array"], "render_fps": 60}
@@ -61,6 +67,8 @@ class SnakeEnv(gym.Env):
         self.h = constants.HEIGHT
         self.display = None
         self.clock = None
+        self.renderer = None
+        self.hud = {}
 
     def step(self, action):
         direction, opposite = ACTIONS[int(action)]
@@ -132,14 +140,24 @@ class SnakeEnv(gym.Env):
         return np.array(observation, dtype=np.float32)
 
     def _draw(self, surface):
-        surface.fill(colors.BACKGROUND)
-        self.snake.draw(display=surface)
-        self.food.draw(display=surface)
+        if self.renderer is None:
+            self.renderer = render.Renderer()
+        rows = render.stat_rows(
+            self.score,
+            len(self.snake.body),
+            number=self.hud.get("episode"),
+            total=self.hud.get("episodes"),
+            best=self.hud.get("best"),
+            mean=self.hud.get("mean"),
+            fps=self.clock.get_fps() if self.clock is not None else None,
+            label="Episode",
+        )
+        self.renderer.draw_frame(surface, self.snake, self.food, "PPO", rows)
 
     def render(self):
         if self.render_mode == "rgb_array":
             # Draw on an off-screen surface: no window is needed
-            surface = pygame.Surface((self.w, self.h))
+            surface = pygame.Surface(render.WINDOW_SIZE)
             self._draw(surface)
             return np.transpose(pygame.surfarray.array3d(surface), (1, 0, 2)).astype(np.uint8)
 
@@ -147,7 +165,7 @@ class SnakeEnv(gym.Env):
             if self.display is None:
                 pygame.init()
                 pygame.display.set_caption("Snake AI - PPO")
-                self.display = pygame.display.set_mode((self.w, self.h))
+                self.display = pygame.display.set_mode(render.WINDOW_SIZE)
                 self.clock = pygame.time.Clock()
             pygame.event.pump()  # Keep the window responsive
             self._draw(self.display)
@@ -177,3 +195,4 @@ class SnakeEnv(gym.Env):
             pygame.display.quit()
             self.display = None
             self.clock = None
+            self.renderer = None

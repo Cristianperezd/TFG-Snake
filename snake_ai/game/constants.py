@@ -1,8 +1,13 @@
 """Board geometry shared by the game, the agents and the RL environment."""
 
-# Window size in pixels
+# Size of the board (the playfield) in pixels
 WIDTH = 500
 HEIGHT = 500
+
+# The window adds a side panel with the score and statistics to the right of the board
+PANEL_WIDTH = 200
+WINDOW_WIDTH = WIDTH + PANEL_WIDTH
+WINDOW_HEIGHT = HEIGHT
 
 # Size of one cell in pixels
 BLOCK = 20
