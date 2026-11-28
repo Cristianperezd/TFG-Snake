@@ -259,3 +259,5 @@ def test_the_web_build_uses_the_custom_loading_screen():
     assert page.startswith("<html") and "# --></script><head>" in page
     assert 'id="loader"' in page and 'id="infobox"' in page
     assert 'platform.window.loader.style.display = "none"' in page
+    # Refit the canvas when the game opens its window, or it stays square
+    assert "new MutationObserver" in page and "window_resize()" in page

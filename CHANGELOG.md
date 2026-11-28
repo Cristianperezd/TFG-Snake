@@ -5,6 +5,11 @@ Versions follow [Semantic Versioning](https://semver.org/):
 - **1.x** is the thesis project, cleaned up and made reproducible. Agent behaviour and results match the thesis.
 - **2.x** will contain improvements beyond the thesis.
 
+## [Unreleased]
+
+### Fixed
+- The browser version opened with the game stretched into a square until the browser window was resized. pygbag fits the canvas to the page once, at start-up, when the canvas is still 1×1 because the game has not opened its 700×500 window yet. The page now fits the canvas again whenever the game changes its size.
+
 ## [1.7.1] - 2026-11-28
 
 ### Changed
