@@ -236,3 +236,15 @@ def test_every_state_can_be_drawn():
         assert app.update(0)
         app.finish_game(0)
         assert app.update(0)
+
+
+def test_the_web_build_ships_the_game_without_the_rl_code(tmp_path, monkeypatch):
+    from web import build
+
+    monkeypatch.setattr(build, "APP_DIR", tmp_path / "app")
+    build.assemble()
+    files = {
+        path.relative_to(tmp_path / "app").as_posix() for path in (tmp_path / "app").rglob("*")
+    }
+    assert {"main.py", "snake_ai/browser.py", "snake_ai/game/game.py", "snake_ai/search"} <= files
+    assert not any(name.startswith("snake_ai/rl") or "__pycache__" in name for name in files)
