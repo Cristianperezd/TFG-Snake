@@ -32,6 +32,7 @@ jobs:
           python-version: ${{ matrix.python-version }}
           cache: pip
           cache-dependency-path: pyproject.toml
-      # The rl extra (Stable Baselines 3, PyTorch) is not needed by the tests
-      - run: pip install -e ".[test]"
+      # The rl extra (Stable Baselines 3, PyTorch) is not needed by the tests;
+      # the record extra (Pillow) is, for the GIF recording tests
+      - run: pip install -e ".[test,record]"
       - run: pytest -v

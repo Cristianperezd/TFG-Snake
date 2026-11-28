@@ -33,6 +33,10 @@ rl = [
     "stable-baselines3>=2.0",
     "tensorboard>=2.10",
 ]
+# Recording games as GIFs (--record)
+record = [
+    "pillow>=9.1",
+]
 test = [
     "pytest>=7",
     "pytest-timeout>=2",

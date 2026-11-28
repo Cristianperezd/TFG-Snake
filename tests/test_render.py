@@ -133,3 +133,9 @@ def test_path_is_drawn_on_the_board():
     game.show_path = False
     game.draw()
     assert game.display.get_at(point)[:3] != with_path
+
+
+def test_hud_can_hide_the_frame_rate():
+    shown = dict(Game(fps=0, hud={"agent": "A*", "game": 1, "games": 1}).hud_rows())
+    hidden = dict(Game(fps=0, hud={"agent": "A*", "game": 1, "games": 1, "fps": False}).hud_rows())
+    assert "FPS" in shown and "FPS" not in hidden
