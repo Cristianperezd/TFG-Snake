@@ -10,7 +10,7 @@ Bachelor's Thesis (TFG) in Computer Engineering, Universitat Autònoma de Barcel
 A Snake game built from scratch with **Pygame**, used as a testbed to compare classic search agents (**Greedy Best-First Search** and **A\***) with a **reinforcement learning** agent (**PPO**, via Stable Baselines 3 on a custom Gymnasium environment).
 
 <p align="center">
-  <img src="docs/astar-demo.gif" alt="A* agent playing Snake" width="300">
+  <img src="docs/astar-demo.gif" alt="The A* agent playing Snake, with its planned path drawn on the board" width="420">
 </p>
 
 > **Status:** this repository is being revisited. The original thesis submission is preserved as [`v1.0.0`](../../tree/v1.0.0). The current work reviews what I built at the time and improves it step by step:
@@ -41,7 +41,7 @@ The full write-up (in Catalan) is available from the UAB repository: [Snake: Imp
 
 ## How it works
 
-**Game.** `Snake`, `Food` and `Game` implement the rules on a 500×500 px window with 20 px cells. `Game` keeps a 25×25 matrix of the board (empty / snake / food) so the agents can read the state.
+**Game.** `Snake`, `Food` and `Game` implement the rules on a 500×500 px board with 20 px cells. `Game` keeps a 25×25 matrix of the board (empty / snake / food) so the agents can read the state. Drawing lives in `render.py`, shared by the game window and the RL environment: it only reads the state, so it never changes a game.
 
 **Search agents.** Each search runs from the current state to the next apple. It simulates moves on copies of the snake and returns the path, which the game then follows.
 
@@ -80,13 +80,14 @@ python -m venv .venv
 # Windows: .venv\Scripts\activate    Linux/macOS: source .venv/bin/activate
 pip install -e .          # the game and the search agents
 pip install -e ".[rl]"    # also PPO training and evaluation (Stable Baselines 3, PyTorch, TensorBoard)
+pip install -e ".[record]"  # also recording games as GIFs (Pillow)
 ```
 
 This installs the `snake-ai` command. `python -m snake_ai` does the same, and `snake-ai --version` prints the installed version.
 
 ### Search agents and manual play
 
-`snake-ai play` runs the game. By default the A\* agent plays one game in a window at 30 FPS.
+`snake-ai play` runs the game. By default the A\* agent plays one game in a window at 30 FPS. A side panel shows the agent, score, length, game number, best score, average so far and FPS.
 
 | Command | What it does |
 |---|---|
@@ -95,6 +96,8 @@ This installs the `snake-ai` command. `python -m snake_ai` does the same, and `s
 | `snake-ai play --agent human` | You play with the arrow keys. |
 | `snake-ai play --games 50 --headless` | Runs the thesis evaluation: 50 games without a window, as fast as possible. The thesis runs were not seeded, so the exact scores vary from run to run. |
 | `snake-ai play --games 50 --headless --seed 1` | The same, with fixed food positions, so the run can be repeated exactly. |
+| `snake-ai play --show-path` | Also draws the path the agent plans to the apple and, lightly, the cells its search explored. |
+| `snake-ai play --headless --seed 1 --max-steps 750 --show-path --record demo.gif --record-every 2 --record-scale 0.6` | Saves a game as a GIF without opening a window (how `docs/astar-demo.gif` was made; needs the `record` extra). |
 
 | Option | Default | Description |
 |---|---|---|
@@ -104,8 +107,12 @@ This installs the `snake-ai` command. `python -m snake_ai` does the same, and `s
 | `--seed N` | none | Random seed for the food positions. |
 | `--headless` | off | No window and no frame limit, for fast evaluation. Not available for `human`. |
 | `--max-steps N` | none | Stop a game after N frames. |
+| `--show-path` | off | Draw the search agent's planned path and explored cells. Not available for `human`. |
+| `--game-over-delay S` | `1.5` | Seconds the game-over message stays on screen between games. Skipped with `--headless` or `--fps 0`. |
+| `--record PATH` | none | Save the run as an animated GIF (`record` extra). Works with `--headless`. |
+| `--record-every N`, `--record-scale F` | `1`, `1.0` | Keep one frame in N and resize the frames, for smaller GIFs. |
 
-After each game it prints the score and why the game ended (`collision`, `no path` when the agent cannot reach the food, or `step limit`), and at the end the mean, min and max scores. Closing the window stops the run.
+After each game it prints the score and why the game ended (`collision`, `no path` when the agent cannot reach the food, or `step limit`), and at the end the mean, min and max scores. In the window, **Space** pauses and resumes, and **Esc** or closing the window stops the run. None of this changes the games: a run with a window, `--show-path` or `--record` gives the same scores as `--headless`.
 
 ### PPO
 
@@ -119,6 +126,10 @@ snake-ai evaluate                                    # 50 episodes in a window
 snake-ai evaluate --episodes 50 --no-render --seed 0 # the evaluation below, without a window
 ```
 
+<p align="center">
+  <img src="docs/ppo-demo.gif" alt="The pretrained PPO agent playing Snake" width="420">
+</p>
+
 **Train your own.**
 
 | Command | What it does |
@@ -128,7 +139,7 @@ snake-ai evaluate --episodes 50 --no-render --seed 0 # the evaluation below, wit
 | `snake-ai evaluate models/quick/200000.zip` | Plays 50 episodes with a checkpoint in a window and prints score statistics. |
 | `snake-ai evaluate models/quick/200000.zip --episodes 10 --no-render --max-steps 5000` | The same without a window, truncating episodes that run too long. |
 
-`snake-ai train` options: `--timesteps`, `--checkpoint-freq`, `--run-name`, `--models-dir`, `--logs-dir`, `--seed`. `snake-ai evaluate` options: `MODEL` (default: the pretrained agent), `--episodes`, `--render` / `--no-render`, `--seed`, `--max-steps`. Run any command with `--help` for details.
+`snake-ai train` options: `--timesteps`, `--checkpoint-freq`, `--run-name`, `--models-dir`, `--logs-dir`, `--seed`. `snake-ai evaluate` options: `MODEL` (default: the pretrained agent), `--episodes`, `--render` / `--no-render`, `--seed`, `--max-steps`, `--game-over-delay`, and `--record PATH` (with `--record-every`, `--record-scale`), which also works with `--no-render`: `snake-ai evaluate --episodes 1 --no-render --seed 0 --record ppo.gif --record-every 3 --record-scale 0.6` made the GIF above. The window has the same keys as `snake-ai play`. Run any command with `--help` for details.
 
 Known quirk (kept in 1.x): training saves a checkpoint every `--checkpoint-freq` steps by calling PPO in chunks, and PPO always collects whole rollouts of 2,048 steps. Each 10,000-step chunk therefore runs 10,240 steps, and the default run does 5,109,760 steps instead of 4,990,000. The checkpoint names use the nominal counts.
 
@@ -151,7 +162,7 @@ import snake_ai.rl  # registers SnakeAI-v0
 env = gym.make("SnakeAI-v0", render_mode="rgb_array")
 obs, info = env.reset(seed=0)
 obs, reward, terminated, truncated, info = env.step(env.action_space.sample())
-frame = env.render()  # 500x500x3 uint8 array, no window needed
+frame = env.render()  # 500x700x3 uint8 array (board and side panel), no window needed
 ```
 
 - `render_mode`: `None` (default, no drawing), `"human"` (a window, updated every step) or `"rgb_array"` (`render()` returns the frame).
@@ -161,13 +172,13 @@ frame = env.render()  # 500x500x3 uint8 array, no window needed
 ## Tests
 
 ```bash
-pip install -e ".[test]"   # no PyTorch needed
+pip install -e ".[test,record]"   # no PyTorch needed
 pytest
 ruff check && ruff format --check
 ```
 
 - **Regression tests** replay A\* games, GBFS searches and RL environment episodes with fixed random seeds, and compare them frame by frame with traces recorded from the original thesis code (`tests/golden/`, generated at `v1.1.0`). Any change to the agents' behaviour makes them fail.
-- **Unit tests** cover movement, collisions, food respawning, path validity, the environment's observations and rewards, its Gymnasium API (`check_env`, seeding, truncation, render modes, `gymnasium.make`), how games end, the command-line options and the `snake-ai` entry point. One test plays the pretrained agent; it is skipped when Stable Baselines 3 is not installed, as on CI.
+- **Unit tests** cover movement, collisions, food respawning, path validity, the environment's observations and rewards, its Gymnasium API (`check_env`, seeding, truncation, render modes, `gymnasium.make`), how games end, the command-line options and the `snake-ai` entry point, and the drawing: frames, the search overlay, pause and game-over messages, and GIF recording, including that none of them changes a game. One test plays the pretrained agent; it is skipped when Stable Baselines 3 is not installed, as on CI.
 
 They run automatically on every push and pull request with GitHub Actions, on Python 3.10 to 3.13, together with [Ruff](https://github.com/astral-sh/ruff) for linting and formatting (configured in `pyproject.toml`).
 
@@ -176,10 +187,13 @@ They run automatically on every push and pull request with GitHub Actions, on Py
 ```
 ├── snake_ai/
 │   ├── cli.py              # snake-ai command: play, train, evaluate
+│   ├── recording.py        # GIF recording (--record)
 │   ├── __main__.py         # python -m snake_ai
 │   ├── game/
-│   │   ├── game.py         # Game loop, rendering and board matrix
+│   │   ├── game.py         # Game loop and board matrix
 │   │   ├── snake.py, food.py
+│   │   ├── render.py       # Drawing: board, snake, apple, side panel, overlays
+│   │   ├── controls.py     # Window keys: pause, quit
 │   │   ├── constants.py    # Board geometry and defaults (FPS, node limit)
 │   │   └── colors.py       # Colour palette
 │   ├── search/
