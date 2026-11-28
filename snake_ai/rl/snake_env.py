@@ -33,9 +33,10 @@ class SnakeEnv(gym.Env):
 
     Arguments:
         render_mode: None (no drawing), "human" (draw every step in a window)
-            or "rgb_array" (`render()` returns the frame as an HxWx3 array).
-            Frames have the same look as `snake-ai play`: the board and a side
-            panel, WINDOW_HEIGHT x WINDOW_WIDTH pixels.
+            or "rgb_array" (`render()` returns the board as a HEIGHT x WIDTH x 3
+            array, 500 x 500 x 3). Both have the same look as `snake-ai play`;
+            the window also shows the side panel, and `frame()` returns the
+            window's full frame, panel included (used for GIF recordings).
         max_episode_steps: if set, an episode is truncated after this many
             steps. The default, None, never truncates, as in the thesis.
 
@@ -162,15 +163,17 @@ class SnakeEnv(gym.Env):
         )
 
     def frame(self, overlay=None):
-        """The current frame as a HxWx3 uint8 array, drawn off-screen (no window
-        is needed), with an optional (title, subtitle) message over the board."""
+        """The window's frame (board and side panel) as a HxWx3 uint8 array,
+        drawn off-screen (no window is needed), with an optional
+        (title, subtitle) message over the board."""
         surface = pygame.Surface(render.WINDOW_SIZE)
         self._draw(surface, overlay)
         return np.transpose(pygame.surfarray.array3d(surface), (1, 0, 2)).astype(np.uint8)
 
     def render(self):
         if self.render_mode == "rgb_array":
-            return self.frame()
+            # Only the board, so the frame size stays as in 1.5.0 (500 x 500)
+            return self.frame()[: constants.HEIGHT, : constants.WIDTH]
 
         if self.render_mode == "human":
             if self.display is None:

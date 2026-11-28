@@ -20,7 +20,7 @@ Better visualization. Only the drawing changes: games, agents' decisions, observ
 
 ### Changed
 - New look: a dark checkerboard board, a snake whose body fades from head to tail with eyes facing where it moves, and a round apple. The drawing code is in `snake_ai/game/render.py` and is shared by the game and `SnakeEnv`; `Snake.draw` and `Food.draw` were removed.
-- `SnakeEnv` renders with the same look, side panel included: `"rgb_array"` frames are now 500×700×3 instead of 500×500×3.
+- `SnakeEnv` renders with the same look. The `"human"` window adds the side panel; `"rgb_array"` frames still show only the board (500×500×3), and the new `SnakeEnv.frame()` returns the full frame, panel included.
 - `docs/astar-demo.gif` was recorded again with `--record`, with the new look and `--show-path`.
 - CI installs the `record` extra to run the recording tests.
 

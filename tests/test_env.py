@@ -146,9 +146,10 @@ def test_rgb_array_render_returns_the_frame():
     env = SnakeEnv(render_mode="rgb_array")
     env.reset(seed=0)
     frame = env.render()
-    # The board (500 x 500) and the side panel to its right
-    assert frame.shape == (constants.WINDOW_HEIGHT, constants.WINDOW_WIDTH, 3)
-    assert frame.shape == (500, 700, 3)
+    # Only the board, as in 1.5.0: the side panel is left out
+    assert frame.shape == (constants.HEIGHT, constants.WIDTH, 3)
+    assert frame.shape == (500, 500, 3)
+    assert env.frame().shape == (500, 700, 3)  # The window's frame, panel included
     assert frame.dtype == np.uint8
     head = env.snake.get_head()
     food = env.food.pos
@@ -181,7 +182,7 @@ def test_registered_with_gymnasium():
     env = gym.make(ENV_ID, render_mode="rgb_array", max_episode_steps=5)
     obs, _ = env.reset(seed=1)
     assert env.observation_space.contains(obs)
-    assert env.render().shape == (500, 700, 3)
+    assert env.render().shape == (500, 500, 3)
     truncated = False
     for _ in range(5):
         _, _, terminated, truncated, _ = env.step(2)
