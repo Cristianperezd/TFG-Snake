@@ -5,6 +5,22 @@ Versions follow [Semantic Versioning](https://semver.org/):
 - **1.x** is the thesis project, cleaned up and made reproducible. Agent behaviour and results match the thesis.
 - **2.x** will contain improvements beyond the thesis.
 
+## [1.7.0] - Unreleased
+
+Playable in the browser. The games, agents' decisions and scores are the same as in 1.6.0 (the regression tests pass unchanged, and headless runs print exactly the same output).
+
+### Added
+- A browser version at https://cristianperezd.github.io/TFG-Snake/, built with pygbag (pygame compiled to WebAssembly) from the same `snake_ai` code. A menu chooses Human, A\* or GBFS (keys 1 / 2 / 3); P shows the search agent's path, + / - change the speed, Space pauses, R restarts and M or Esc go back to the menu. The agents play game after game, and the side panel keeps the best score and average. There is no PPO agent: it needs PyTorch, which does not run in the browser.
+- `snake_ai.browser.App`, the browser's menu and game loop, as a state machine that never blocks, with tests that run without a browser.
+- `web/main.py` (the pygbag entry point) and `web/build.py`, which builds the page, leaving out `snake_ai.rl` (`python web/build.py --serve` to try it locally).
+- A GitHub Actions workflow (`pages.yml`) that builds the page and deploys it to GitHub Pages on pushes to `main`, and only builds it on pull requests.
+- README: a "Play in the browser" link and a section on the browser version.
+
+### Changed
+- `Game.step` is split into `Game.steer` (arrow keys) and `Game.advance` (one frame, without reading events or waiting), so the browser loop can play the same games. `step` still does exactly the same.
+- `AGENTS`, `AGENT_NAMES` and `make_agent` moved from `snake_ai.cli` to the new `snake_ai.agents`, which does not import the RL code (the CLI still exports them).
+- The side panel's key hints can be set per game (`Game.hints`).
+
 ## [1.6.0] - 2026-11-28
 
 Better visualization. Only the drawing changes: games, agents' decisions, observations, rewards and scores are the same as in 1.5.0 (the regression tests pass unchanged, and headless runs print exactly the same output).
@@ -125,6 +141,7 @@ The regression tests confirm that A\* games, GBFS searches and RL environment ep
 
 Original submission of the Bachelor's Thesis (Universitat Autònoma de Barcelona).
 
+[1.7.0]: https://github.com/Cristianperezd/TFG-Snake/compare/v1.6.0...HEAD
 [1.6.0]: https://github.com/Cristianperezd/TFG-Snake/compare/v1.5.0...v1.6.0
 [1.5.0]: https://github.com/Cristianperezd/TFG-Snake/compare/v1.4.0...v1.5.0
 [1.4.0]: https://github.com/Cristianperezd/TFG-Snake/compare/v1.3.0...v1.4.0
