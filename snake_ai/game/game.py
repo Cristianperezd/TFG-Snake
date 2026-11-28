@@ -43,6 +43,7 @@ class Game:
         self.show_path = show_path
         self.agent = None  # The agent of the last step, for drawing its search
         self.hud = hud or {}
+        self.hints = controls.HINTS  # Help lines at the bottom of the side panel
         self.end_reason = None
         self.w = constants.WIDTH
         self.h = constants.HEIGHT
@@ -99,7 +100,7 @@ class Game:
             self.food,
             self.hud.get("agent", "Snake"),
             self.hud_rows(),
-            hints=controls.HINTS,
+            hints=self.hints,
             overlay=overlay,
             search=self.search_overlay(),
         )
