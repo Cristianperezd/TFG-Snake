@@ -5,7 +5,7 @@ Versions follow [Semantic Versioning](https://semver.org/):
 - **1.x** is the thesis project, cleaned up and made reproducible. Agent behaviour and results match the thesis.
 - **2.x** will contain improvements beyond the thesis.
 
-## [Unreleased]
+## [1.7.2] - 2026-11-28
 
 ### Fixed
 - The browser version opened with the game stretched into a square until the browser window was resized. pygbag fits the canvas to the page once, at start-up, when the canvas is still 1×1 because the game has not opened its 700×500 window yet. The page now fits the canvas again whenever the game changes its size.
@@ -151,6 +151,7 @@ The regression tests confirm that A\* games, GBFS searches and RL environment ep
 
 Original submission of the Bachelor's Thesis (Universitat Autònoma de Barcelona).
 
+[1.7.2]: https://github.com/Cristianperezd/TFG-Snake/compare/v1.7.1...v1.7.2
 [1.7.1]: https://github.com/Cristianperezd/TFG-Snake/compare/v1.7.0...v1.7.1
 [1.7.0]: https://github.com/Cristianperezd/TFG-Snake/compare/v1.6.0...v1.7.0
 [1.6.0]: https://github.com/Cristianperezd/TFG-Snake/compare/v1.5.0...v1.6.0
