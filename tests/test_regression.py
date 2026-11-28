@@ -13,6 +13,7 @@ import random
 import pytest
 
 from snake_ai.rl.snake_env import SnakeEnv
+from snake_ai.search.astar import AStar, AStarNode
 from snake_ai.search.gbfs import GBFS, GBFSNode
 
 from helpers import new_game, play_astar, read_golden
@@ -62,3 +63,23 @@ def test_env_episode_matches_thesis_code(seed):
             break
 
     assert actual == expected
+
+
+@pytest.mark.parametrize("seed", [1, 7])
+def test_advance_plays_the_same_game_as_step(seed):
+    """`Game.advance` (used by the browser version, which reads events itself)
+    is `step` without the events and the frame wait: same game, frame by frame."""
+    expected = read_golden(f"astar_seed{seed}.txt")
+    game = new_game(seed)
+    agent = AStar(AStarNode(game.board, game.snake, game.food))
+    for frame, line in enumerate(expected):
+        over = game.advance(agent)
+        head = game.snake.body[0]
+        actual = (
+            f"{game.score} {len(game.snake.body)} "
+            f"{int(head.x)},{int(head.y)} {int(game.food.pos.x)},{int(game.food.pos.y)}"
+        )
+        assert actual == line, f"first difference at frame {frame}"
+        if over:
+            break
+    assert frame == len(expected) - 1

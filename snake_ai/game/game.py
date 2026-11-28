@@ -134,6 +134,11 @@ class Game:
 
         Returns True when the game is over (see `end_reason`), False otherwise.
         The final score is in `score`.
+
+        This reads the window's events (Space pauses here, waiting until it is
+        pressed again) and waits for the frame time; `steer` and `advance` are
+        the parts that do neither, for loops that handle events and timing
+        themselves (the browser version).
         """
         self.agent = agent
         for event in pygame.event.get():
@@ -141,11 +146,29 @@ class Game:
                 return self._end("window closed")
             if self.render and controls.is_pause(event) and not self.pause():
                 return self._end("window closed")
-            if agent is None and event.type == pygame.KEYDOWN and event.key in KEY_DIRECTIONS:
-                new_direction, opposite = KEY_DIRECTIONS[event.key]
-                if self.snake.direction != opposite:
-                    self.snake.direction = new_direction
+            if agent is None:
+                self.steer(event)
 
+        if self.advance(agent):
+            return True
+        self.clock.tick(self.fps)
+        return False
+
+    def steer(self, event):
+        """Turn the snake if `event` is an arrow key press (human play)."""
+        if event.type == pygame.KEYDOWN and event.key in KEY_DIRECTIONS:
+            new_direction, opposite = KEY_DIRECTIONS[event.key]
+            if self.snake.direction != opposite:
+                self.snake.direction = new_direction
+
+    def advance(self, agent=None):
+        """Move the game one frame on, without reading events or waiting.
+
+        Like `step`, `agent=None` is a human player (see `steer`) and the
+        return value is True when the game is over. With `render` the new frame
+        is drawn.
+        """
+        self.agent = agent
         if agent is not None and agent.state == 0:
             agent.reset(agent.node_class(self.board, self.snake, self.food))
             agent.solution = agent.search()
@@ -176,5 +199,4 @@ class Game:
 
         if self.render:
             self.draw()
-        self.clock.tick(self.fps)
         return False
