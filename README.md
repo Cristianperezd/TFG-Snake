@@ -4,10 +4,15 @@
 [![Python 3.10 – 3.13](https://img.shields.io/badge/python-3.10%20%E2%80%93%203.13-blue)](pyproject.toml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE.txt)
 [![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
+[![Play in the browser](https://img.shields.io/badge/%E2%96%B6%20play-in%20the%20browser-brightgreen)](https://cristianperezd.github.io/TFG-Snake/)
 
 Bachelor's Thesis (TFG) in Computer Engineering, Universitat Autònoma de Barcelona, 2023.
 
 A Snake game built from scratch with **Pygame**, used as a testbed to compare classic search agents (**Greedy Best-First Search** and **A\***) with a **reinforcement learning** agent (**PPO**, via Stable Baselines 3 on a custom Gymnasium environment).
+
+### [▶ Play in the browser](https://cristianperezd.github.io/TFG-Snake/)
+
+Play it yourself or watch A\* and GBFS play, with their planned path on the board, without installing anything. The first load downloads the Python runtime (a few MB). The PPO agent is not available there: it needs PyTorch, which does not run in the browser ([details](#in-the-browser)).
 
 <p align="center">
   <img src="docs/astar-demo.gif" alt="The A* agent playing Snake, with its planned path drawn on the board" width="420">
@@ -114,6 +119,32 @@ This installs the `snake-ai` command. `python -m snake_ai` does the same, and `s
 
 After each game it prints the score and why the game ended (`collision`, `no path` when the agent cannot reach the food, or `step limit`), and at the end the mean, min and max scores. In the window, **Space** pauses and resumes, and **Esc** or closing the window stops the run. None of this changes the games: a run with a window, `--show-path` or `--record` gives the same scores as `--headless`.
 
+### In the browser
+
+The [browser version](https://cristianperezd.github.io/TFG-Snake/) runs the same `snake_ai` code compiled to WebAssembly with [pygbag](https://github.com/pygame-web/pygbag): the same game, agents and drawing as `snake-ai play`. It is controlled with the keyboard:
+
+| Key | Action |
+|---|---|
+| **1** / **2** / **3** | In the menu: play yourself, or let A\* or GBFS play |
+| Arrow keys | Steer the snake (Human) |
+| **P** | Show or hide the search agent's planned path and explored cells |
+| **+** / **-** | Faster / slower (Human starts at 10 frames per second, the agents at 30) |
+| **Space** | Pause and resume |
+| **R** | Start a new game |
+| **M** or **Esc** | Back to the menu |
+| **Enter** | Next game after a game over (the agents go on by themselves) |
+
+The side panel keeps the score, best score and average over the games played. There is no PPO agent: it needs PyTorch (through Stable Baselines 3), which has no WebAssembly build, so `snake_ai.rl` is not included.
+
+The page is built and published to GitHub Pages by [`.github/workflows/pages.yml`](.github/workflows/pages.yml) on every push to `main`. To build and try it locally:
+
+```bash
+pip install pygbag==0.9.3
+python web/build.py --serve       # then open http://localhost:8000
+```
+
+`web/main.py` is the page's program and `snake_ai/browser.py` its menu and game loop. The browser needs a loop that never blocks, so it uses `Game.advance`, the part of `Game.step` that plays one frame without reading events or waiting; the games are the same frame by frame (a test checks it against the regression traces).
+
 ### PPO
 
 Training and evaluation need Stable Baselines 3 (PyTorch) and TensorBoard: install the `rl` extra (`pip install -e ".[rl]"`).
@@ -178,7 +209,7 @@ ruff check && ruff format --check
 ```
 
 - **Regression tests** replay A\* games, GBFS searches and RL environment episodes with fixed random seeds, and compare them frame by frame with traces recorded from the original thesis code (`tests/golden/`, generated at `v1.1.0`). Any change to the agents' behaviour makes them fail.
-- **Unit tests** cover movement, collisions, food respawning, path validity, the environment's observations and rewards, its Gymnasium API (`check_env`, seeding, truncation, render modes, `gymnasium.make`), how games end, the command-line options and the `snake-ai` entry point, and the drawing: frames, the search overlay, pause and game-over messages, and GIF recording, including that none of them changes a game. One test plays the pretrained agent; it is skipped when Stable Baselines 3 is not installed, as on CI.
+- **Unit tests** cover movement, collisions, food respawning, path validity, the environment's observations and rewards, its Gymnasium API (`check_env`, seeding, truncation, render modes, `gymnasium.make`), how games end, the command-line options and the `snake-ai` entry point, and the drawing: frames, the search overlay, pause and game-over messages, and GIF recording, including that none of them changes a game. The browser version's menu and game loop are tested without a browser, with simulated key presses. One test plays the pretrained agent; it is skipped when Stable Baselines 3 is not installed, as on CI.
 
 They run automatically on every push and pull request with GitHub Actions, on Python 3.10 to 3.13, together with [Ruff](https://github.com/astral-sh/ruff) for linting and formatting (configured in `pyproject.toml`).
 
@@ -187,6 +218,8 @@ They run automatically on every push and pull request with GitHub Actions, on Py
 ```
 ├── snake_ai/
 │   ├── cli.py              # snake-ai command: play, train, evaluate
+│   ├── agents.py           # Who can play: human, GBFS, A*
+│   ├── browser.py          # Browser version: menu and non-blocking game loop
 │   ├── recording.py        # GIF recording (--record)
 │   ├── __main__.py         # python -m snake_ai
 │   ├── game/
@@ -206,6 +239,9 @@ They run automatically on every push and pull request with GitHub Actions, on Py
 │       ├── train.py        # PPO training
 │       ├── evaluate.py     # PPO evaluation
 │       └── pretrained/     # The pretrained PPO agent (ppo_snake.zip)
+├── web/
+│   ├── main.py             # Entry point of the browser version (pygbag)
+│   └── build.py            # Builds it with pygbag (--serve to try it locally)
 ├── tests/                  # Regression and unit tests
 ├── docs/                   # Images for this README
 └── pyproject.toml          # Package metadata, dependencies, pytest and Ruff settings
@@ -213,7 +249,7 @@ They run automatically on every push and pull request with GitHub Actions, on Py
 
 ## Tech stack
 
-Python · Pygame · NumPy · Gymnasium · Stable Baselines 3 (PPO)
+Python · Pygame · NumPy · Gymnasium · Stable Baselines 3 (PPO) · pygbag (WebAssembly, for the browser version)
 
 ## License
 
