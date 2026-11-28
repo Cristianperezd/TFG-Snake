@@ -1,7 +1,9 @@
+import pytest
 from pygame.math import Vector2
 
 from snake_ai.game import constants
 from snake_ai.game.food import Food
+from snake_ai.game.game import Game
 from snake_ai.game.snake import Snake, is_out_of_bounds, next_position
 
 B = constants.BLOCK
@@ -81,3 +83,15 @@ def test_no_collision_when_food_elsewhere():
     food = Food()
     food.pos = Vector2(0, 0)
     assert not food.detect_collision(snake)
+
+
+@pytest.mark.parametrize("directions", [["UP"], ["LEFT"], ["RIGHT"], ["RIGHT", "DOWN"]])
+def test_human_game_ends_when_the_snake_leaves_the_board(directions):
+    # Regression: leaving through the bottom or right edge used to raise an
+    # IndexError, because the board was updated before checking the collision
+    game = Game(fps=0, render=False)
+    for step in range(100):
+        game.snake.direction = directions[min(step, len(directions) - 1)]
+        if game.step():
+            break
+    assert game.end_reason == "collision"
