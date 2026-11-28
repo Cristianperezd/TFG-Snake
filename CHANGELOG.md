@@ -5,7 +5,7 @@ Versions follow [Semantic Versioning](https://semver.org/):
 - **1.x** is the thesis project, cleaned up and made reproducible. Agent behaviour and results match the thesis.
 - **2.x** will contain improvements beyond the thesis.
 
-## [Unreleased]
+## [1.7.1] - 2026-11-28
 
 ### Changed
 - The browser version has a loading screen in the game's colours: a small animated snake, the download status and a dark page, instead of pygbag's default green "Loading, please wait..." box on a light-blue page. It comes from `web/template.tmpl`, pygbag 0.9.3's default page with only the colours and the loading screen changed. The focus outline around the game is gone too.
@@ -146,6 +146,7 @@ The regression tests confirm that A\* games, GBFS searches and RL environment ep
 
 Original submission of the Bachelor's Thesis (Universitat Autònoma de Barcelona).
 
+[1.7.1]: https://github.com/Cristianperezd/TFG-Snake/compare/v1.7.0...v1.7.1
 [1.7.0]: https://github.com/Cristianperezd/TFG-Snake/compare/v1.6.0...v1.7.0
 [1.6.0]: https://github.com/Cristianperezd/TFG-Snake/compare/v1.5.0...v1.6.0
 [1.5.0]: https://github.com/Cristianperezd/TFG-Snake/compare/v1.4.0...v1.5.0
