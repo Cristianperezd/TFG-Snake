@@ -454,6 +454,14 @@ frameborder="1"
         box.hidden =  debug_hidden
 
         show_infobox()
+
+        // pygbag fits the canvas to the page once, at start-up, when the game
+        // has not opened its 700x500 window yet and the canvas is 1x1: the game
+        // came out square until the browser window was resized. Fit it again
+        // every time the game changes the canvas size.
+        new MutationObserver(() => {
+            if (globalThis.window_resize) window_resize()
+        }).observe(canvas, { attributes: true, attributeFilter: ["width", "height"] })
     }
 
     function custom_prerun(){
