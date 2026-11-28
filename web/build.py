@@ -33,6 +33,9 @@ PYGBAG_OPTIONS = [
     # Start at once: the game has no sound, so it needs no click to unlock audio
     "--ume_block",
     "0",
+    # pygbag's default page with a loading screen in the game's colours
+    "--template",
+    str(ROOT / "web" / "template.tmpl"),
 ]
 
 

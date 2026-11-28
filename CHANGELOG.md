@@ -5,6 +5,11 @@ Versions follow [Semantic Versioning](https://semver.org/):
 - **1.x** is the thesis project, cleaned up and made reproducible. Agent behaviour and results match the thesis.
 - **2.x** will contain improvements beyond the thesis.
 
+## [Unreleased]
+
+### Changed
+- The browser version has a loading screen in the game's colours: a small animated snake, the download status and a dark page, instead of pygbag's default green "Loading, please wait..." box on a light-blue page. It comes from `web/template.tmpl`, pygbag 0.9.3's default page with only the colours and the loading screen changed. The focus outline around the game is gone too.
+
 ## [1.7.0] - 2026-11-28
 
 Playable in the browser. The games, agents' decisions and scores are the same as in 1.6.0 (the regression tests pass unchanged, and headless runs print exactly the same output).

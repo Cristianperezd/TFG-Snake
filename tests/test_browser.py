@@ -248,3 +248,14 @@ def test_the_web_build_ships_the_game_without_the_rl_code(tmp_path, monkeypatch)
     }
     assert {"main.py", "snake_ai/browser.py", "snake_ai/game/game.py", "snake_ai/search"} <= files
     assert not any(name.startswith("snake_ai/rl") or "__pycache__" in name for name in files)
+
+
+def test_the_web_build_uses_the_custom_loading_screen():
+    from web import build
+
+    template = build.PYGBAG_OPTIONS[build.PYGBAG_OPTIONS.index("--template") + 1]
+    page = open(template, encoding="utf-8").read()
+    # pygbag reads the Python part up to this marker; the loader is the custom HTML part
+    assert page.startswith("<html") and "# --></script><head>" in page
+    assert 'id="loader"' in page and 'id="infobox"' in page
+    assert 'platform.window.loader.style.display = "none"' in page
