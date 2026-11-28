@@ -41,6 +41,13 @@ def add_arguments(parser):
         default=None,
         help="stop an episode after this many steps (default: no limit)",
     )
+    parser.add_argument(
+        "--game-over-delay",
+        type=float,
+        default=1.5,
+        metavar="SECONDS",
+        help="how long the game-over message stays in the window (default: %(default)s)",
+    )
 
 
 def check_arguments(parser, args):
@@ -48,6 +55,8 @@ def check_arguments(parser, args):
         parser.error("--episodes must be at least 1")
     if args.max_steps is not None and args.max_steps < 1:
         parser.error("--max-steps must be at least 1")
+    if not args.game_over_delay >= 0:
+        parser.error("--game-over-delay must be 0 or more")
 
 
 def run(args):
@@ -64,16 +73,31 @@ def run(args):
 
     scores = []
     for episode in range(args.episodes):
+        env.hud = {
+            "episode": episode + 1,
+            "episodes": args.episodes,
+            "best": max(scores) if scores else None,
+            "mean": statistics.mean(scores) if scores else None,
+        }
         # Seeding the first reset is enough: later resets continue the same sequence
         obs, _ = env.reset(seed=args.seed if episode == 0 else None)
         terminated = truncated = False
-        while not (terminated or truncated):
+        while not (terminated or truncated or env.quit_requested):
             action, _ = model.predict(obs)
             obs, _, terminated, truncated, _ = env.step(action)
+        if env.quit_requested:
+            print("Window closed, stopping.")
+            break
         scores.append(env.score)
         print(f"Episode {episode + 1}: score {env.score}" + (" (step limit)" if truncated else ""))
+        reason = "step limit" if truncated else "collision"
+        if not env.show_game_over(reason, args.game_over_delay):
+            print("Window closed, stopping.")
+            break
 
     env.close()
+    if not scores:
+        return scores
     print(
         f"Episodes: {len(scores)}  Mean: {statistics.mean(scores):.2f}  "
         f"Min: {min(scores)}  Max: {max(scores)}"

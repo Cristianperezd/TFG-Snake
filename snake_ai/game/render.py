@@ -165,9 +165,28 @@ class Renderer:
             panel.blit(self.small_font.render(hint, True, colors.TEXT_MUTED), (margin, y))
             y += 18
 
+    # Pause and game-over messages
+
+    def draw_overlay(self, surface, title, subtitle=None):
+        """Darken the board and write `title` (and `subtitle`) in its middle."""
+        shade = pygame.Surface(BOARD_RECT.size, pygame.SRCALPHA)
+        shade.fill(colors.OVERLAY)
+        surface.blit(shade, BOARD_RECT.topleft)
+        texts = [self.title_font.render(title, True, colors.TEXT)]
+        if subtitle:
+            texts.append(self.value_font.render(subtitle, True, colors.ACCENT))
+        y = BOARD_RECT.centery - sum(text.get_height() + 8 for text in texts) // 2
+        for text in texts:
+            surface.blit(text, (BOARD_RECT.centerx - text.get_width() // 2, y))
+            y += text.get_height() + 8
+
     # Whole frame
 
-    def draw_frame(self, surface, snake, food, title, rows, hints=()):
+    def draw_frame(self, surface, snake, food, title, rows, hints=(), overlay=None):
+        """Draw the board and the panel. `overlay` is an optional (title,
+        subtitle) message drawn over the board, e.g. when paused."""
         surface.fill(colors.BACKGROUND)
         self.draw_board(surface.subsurface(BOARD_RECT), snake, food)
         self.draw_panel(surface, title, rows, hints)
+        if overlay is not None:
+            self.draw_overlay(surface, *overlay)

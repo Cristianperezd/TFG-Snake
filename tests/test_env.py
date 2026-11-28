@@ -187,3 +187,26 @@ def test_registered_with_gymnasium():
         _, _, terminated, truncated, _ = env.step(2)
     assert truncated and not terminated
     env.close()
+
+
+def test_human_window_escape_requests_quit():
+    import pygame
+
+    env = SnakeEnv(render_mode="human")
+    env.reset(seed=0)
+    assert not env.quit_requested
+    pygame.event.post(pygame.event.Event(pygame.KEYDOWN, key=pygame.K_ESCAPE))
+    env.step(0)
+    assert env.quit_requested
+    assert env.show_game_over("collision", 0) is False
+    env.close()
+
+
+def test_game_over_message_only_in_the_human_window():
+    env = SnakeEnv(render_mode="rgb_array")
+    env.reset(seed=0)
+    assert env.show_game_over("collision", 5) is True  # returns at once
+    plain = env.frame()
+    message = env.frame(overlay=("Game over", "The snake crashed"))
+    assert plain.shape == message.shape
+    assert message[:, :500].mean() < plain[:, :500].mean()  # the board is darkened

@@ -3,6 +3,7 @@
 Examples:
     snake-ai play                                   # A* plays one game in a window
     snake-ai play --agent human                     # play with the arrow keys
+                                                    # (Space pauses, Esc quits)
     snake-ai play --agent gbfs --games 5 --fps 60
     snake-ai play --games 50 --headless             # thesis evaluation, no window
     snake-ai train --timesteps 200000 --run-name quick --seed 0
@@ -36,6 +37,13 @@ def positive_int(value):
     number = int(value)
     if number < 1:
         raise argparse.ArgumentTypeError(f"must be at least 1, got {value}")
+    return number
+
+
+def non_negative_float(value):
+    number = float(value)
+    if not number >= 0:
+        raise argparse.ArgumentTypeError(f"must be 0 or more, got {value}")
     return number
 
 
@@ -82,6 +90,14 @@ def add_play_arguments(parser):
         default=None,
         help="stop a game after this many frames (default: no limit)",
     )
+    parser.add_argument(
+        "--game-over-delay",
+        type=non_negative_float,
+        default=1.5,
+        metavar="SECONDS",
+        help="how long the game-over message stays in the window; skipped with --fps 0 "
+        "and --headless (default: %(default)s)",
+    )
 
 
 def check_play_arguments(parser, args):
@@ -97,8 +113,8 @@ def make_agent(name, game):
     return agent_class(agent_class.node_class(game.board, game.snake, game.food))
 
 
-def play_game(agent_name, fps=constants.FPS, render=True, max_steps=None, hud=None):
-    """Play one game. Return (score, end reason).
+def run_game(agent_name, fps=constants.FPS, render=True, max_steps=None, hud=None):
+    """Play one game and return the finished `Game` (see `score` and `end_reason`).
 
     `hud` is shown in the side panel of the window (see `Game`)."""
     game = Game(fps=fps, render=render, hud={"agent": AGENT_NAMES[agent_name], **(hud or {})})
@@ -107,7 +123,14 @@ def play_game(agent_name, fps=constants.FPS, render=True, max_steps=None, hud=No
     while not game.step(agent):
         steps += 1
         if max_steps is not None and steps >= max_steps:
-            return game.score, "step limit"
+            game.end_reason = "step limit"
+            break
+    return game
+
+
+def play_game(agent_name, fps=constants.FPS, render=True, max_steps=None, hud=None):
+    """Play one game. Return (score, end reason)."""
+    game = run_game(agent_name, fps=fps, render=render, max_steps=max_steps, hud=hud)
     return game.score, game.end_reason
 
 
@@ -120,6 +143,7 @@ def play(args):
         random.seed(args.seed)
 
     fps = 0 if args.headless else args.fps
+    render = not args.headless
     scores = []
     for i in range(args.games):
         hud = {
@@ -128,14 +152,15 @@ def play(args):
             "best": max(scores) if scores else None,
             "mean": statistics.mean(scores) if scores else None,
         }
-        score, reason = play_game(
-            args.agent, fps=fps, render=not args.headless, max_steps=args.max_steps, hud=hud
-        )
-        if reason == "window closed":
+        game = run_game(args.agent, fps=fps, render=render, max_steps=args.max_steps, hud=hud)
+        if game.end_reason == "window closed":
             print("Window closed, stopping.")
             break
-        scores.append(score)
-        print(f"Game {i + 1}: score {score} ({reason})")
+        scores.append(game.score)
+        print(f"Game {i + 1}: score {game.score} ({game.end_reason})")
+        if render and not game.show_game_over(args.game_over_delay if fps > 0 else 0):
+            print("Window closed, stopping.")
+            break
     return scores
 
 
