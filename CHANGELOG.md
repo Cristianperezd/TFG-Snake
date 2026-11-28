@@ -5,6 +5,25 @@ Versions follow [Semantic Versioning](https://semver.org/):
 - **1.x** is the thesis project, cleaned up and made reproducible. Agent behaviour and results match the thesis.
 - **2.x** will contain improvements beyond the thesis.
 
+## [1.6.0] - Unreleased
+
+Better visualization. Only the drawing changes: games, agents' decisions, observations, rewards and scores are the same as in 1.5.0 (the regression tests pass unchanged, and headless runs print exactly the same output).
+
+### Added
+- A side panel next to the board with the agent, score, length, game number, best score, average so far and FPS. The window is now 700×500; the board is still 25×25 cells.
+- `snake-ai play --show-path`: draws the path the search agent plans to the apple and, lightly, the cells its last search expanded. The agents expose them in `SearchAgent.expanded` and `SearchAgent.planned_path()`, recorded without changing their decisions.
+- Space pauses and resumes, and Esc quits like closing the window, in `snake-ai play` and in the `SnakeEnv` human window (`snake-ai evaluate`).
+- A game-over message with the reason (collision, no path, step limit) between games, for `--game-over-delay` seconds (default 1.5; skipped with `--headless` and `--fps 0`). Also in `snake-ai evaluate`.
+- `--record PATH` in `snake-ai play` and `snake-ai evaluate` saves the run as an animated GIF, with `--record-every N` and `--record-scale F` for smaller files. It also works without a window (`--headless`, `--no-render`). Needs Pillow, from the new `record` extra.
+- `SnakeEnv.frame(overlay=None)` returns the current frame as an array in any render mode, and `SnakeEnv.hud` adds the episode statistics to its side panel.
+- `docs/ppo-demo.gif`, the pretrained PPO agent playing.
+
+### Changed
+- New look: a dark checkerboard board, a snake whose body fades from head to tail with eyes facing where it moves, and a round apple. The drawing code is in `snake_ai/game/render.py` and is shared by the game and `SnakeEnv`; `Snake.draw` and `Food.draw` were removed.
+- `SnakeEnv` renders with the same look, side panel included: `"rgb_array"` frames are now 500×700×3 instead of 500×500×3.
+- `docs/astar-demo.gif` was recorded again with `--record`, with the new look and `--show-path`.
+- CI installs the `record` extra to run the recording tests.
+
 ## [1.5.0] - 2026-11-27
 
 ### Added
@@ -102,6 +121,7 @@ The regression tests confirm that A\* games, GBFS searches and RL environment ep
 
 Original submission of the Bachelor's Thesis (Universitat Autònoma de Barcelona).
 
+[1.6.0]: https://github.com/Cristianperezd/TFG-Snake/compare/v1.5.0...HEAD
 [1.5.0]: https://github.com/Cristianperezd/TFG-Snake/compare/v1.4.0...v1.5.0
 [1.4.0]: https://github.com/Cristianperezd/TFG-Snake/compare/v1.3.0...v1.4.0
 [1.3.0]: https://github.com/Cristianperezd/TFG-Snake/compare/v1.2.0...v1.3.0
