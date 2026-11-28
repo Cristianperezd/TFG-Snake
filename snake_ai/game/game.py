@@ -106,10 +106,11 @@ class Game:
         else:
             self.snake.body.pop()
 
-        self.update_board()
-
+        # Check the collision first: a head outside the board has no cell to mark
         if self.snake.check_collision():
             return self._end("collision")
+
+        self.update_board()
 
         if self.render:
             self.draw()
