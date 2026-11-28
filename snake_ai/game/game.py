@@ -23,6 +23,9 @@ class Game:
     skips drawing, which is useful for fast headless evaluation. Neither
     affects the game itself.
 
+    With `show_path=True` the window also shows the path the search agent is
+    following and the cells its last search expanded.
+
     `hud` fills the side panel: a dict with the keys `agent` (the name shown
     as its title) and, optionally, `game` and `games` (current game and total),
     `best` and `mean` (over the games already played, None if there are none).
@@ -32,10 +35,12 @@ class Game:
     was closed or Esc pressed). When the game is drawn, Space pauses it.
     """
 
-    def __init__(self, fps=constants.FPS, render=True, hud=None):
+    def __init__(self, fps=constants.FPS, render=True, hud=None, show_path=False):
         pygame.init()
         self.fps = fps
         self.render = render
+        self.show_path = show_path
+        self.agent = None  # The agent of the last step, for drawing its search
         self.hud = hud or {}
         self.end_reason = None
         self.w = constants.WIDTH
@@ -95,8 +100,17 @@ class Game:
             self.hud_rows(),
             hints=controls.HINTS,
             overlay=overlay,
+            search=self.search_overlay(),
         )
         pygame.display.flip()
+
+    def search_overlay(self):
+        """(path, explored) to draw with --show-path, or None."""
+        if not self.show_path or self.agent is None:
+            return None
+        if self.agent.state != 1:  # The snake has just eaten: no path yet
+            return (), ()
+        return self.agent.planned_path(self.snake.get_head()), self.agent.expanded
 
     def pause(self):
         """Wait until Space is pressed again. Return False if the user quits instead."""
@@ -120,6 +134,7 @@ class Game:
         Returns True when the game is over (see `end_reason`), False otherwise.
         The final score is in `score`.
         """
+        self.agent = agent
         for event in pygame.event.get():
             if controls.is_quit(event):
                 return self._end("window closed")

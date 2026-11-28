@@ -86,3 +86,50 @@ def test_stat_rows():
     # Before the first game ends: the best is the current score, no average yet
     rows = dict(stat_rows(4, 7, number=1, total=5, label="Episode"))
     assert rows["Episode"] == "1 / 5" and rows["Best"] == "4" and rows["Average"] == "-"
+
+
+# --show-path
+
+
+def test_search_agents_expose_their_path_and_explored_cells():
+    random.seed(2)
+    game = Game(fps=0, show_path=True)
+    agent = AStar(AStarNode(game.board, game.snake, game.food))
+    assert game.search_overlay() is None  # before the first step
+    game.step(agent)
+    path, explored = game.search_overlay()
+    head = game.snake.get_head()
+    assert path[-1] == game.food.pos  # the path ends on the apple
+    assert abs(path[0].x - head.x) + abs(path[0].y - head.y) == B
+    assert len(explored) >= len(path)
+    assert all(
+        0 <= cell.x < constants.WIDTH and 0 <= cell.y < constants.HEIGHT for cell in explored
+    )
+
+
+def test_show_path_does_not_change_the_game():
+    def trace(**options):
+        random.seed(6)
+        game = Game(fps=0, **options)
+        agent = AStar(AStarNode(game.board, game.snake, game.food))
+        frames = []
+        for _ in range(200):
+            over = game.step(agent)
+            frames.append((over, [tuple(b) for b in game.snake.body], tuple(game.food.pos)))
+        return frames, random.getstate()
+
+    assert trace(show_path=True) == trace(render=False)
+
+
+def test_path_is_drawn_on_the_board():
+    random.seed(2)
+    game = Game(fps=0, show_path=True)
+    agent = AStar(AStarNode(game.board, game.snake, game.food))
+    game.step(agent)
+    path, _ = game.search_overlay()
+    cell = path[len(path) // 2]
+    point = (int(cell.x) + B // 2, int(cell.y) + B // 2)
+    with_path = game.display.get_at(point)[:3]
+    game.show_path = False
+    game.draw()
+    assert game.display.get_at(point)[:3] != with_path

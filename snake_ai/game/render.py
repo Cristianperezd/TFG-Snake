@@ -83,11 +83,28 @@ class Renderer:
 
     # Board
 
-    def draw_board(self, surface, snake, food):
-        """Draw the board on `surface`, a surface with the board's coordinates."""
+    def draw_board(self, surface, snake, food, path=(), explored=()):
+        """Draw the board on `surface`, a surface with the board's coordinates.
+
+        `path` (cells the snake is going to visit) and `explored` (cells the
+        search expanded) are pixel positions drawn under the snake."""
         surface.blit(self.board_background, (0, 0))
+        if path or explored:
+            self.draw_search(surface, snake.body[0], path, explored)
         self.draw_food(surface, food)
         self.draw_snake(surface, snake)
+
+    @staticmethod
+    def draw_search(surface, head, path, explored):
+        layer = pygame.Surface(BOARD_RECT.size, pygame.SRCALPHA)
+        for x, y in {(int(cell.x), int(cell.y)) for cell in explored}:
+            layer.fill(colors.EXPLORED, (x + 1, y + 1, B - 2, B - 2))
+        if path:
+            points = [(int(cell.x) + B // 2, int(cell.y) + B // 2) for cell in [head, *path]]
+            pygame.draw.lines(layer, colors.PATH, False, points, 3)
+            for point in points[1:]:
+                pygame.draw.circle(layer, colors.PATH, point, 3)
+        surface.blit(layer, (0, 0))
 
     def draw_food(self, surface, food):
         cx, cy = int(food.pos.x) + B // 2, int(food.pos.y) + B // 2 + 1
@@ -137,9 +154,10 @@ class Renderer:
 
     # Side panel
 
-    def draw_panel(self, surface, title, rows, hints=()):
-        """Draw the side panel: `title` (the agent), `rows` of (label, value)
-        and a few `hints` (short lines of help) at the bottom."""
+    def draw_panel(self, surface, title, rows, hints=(), legend=False):
+        """Draw the side panel: `title` (the agent), `rows` of (label, value),
+        a few `hints` (short lines of help) at the bottom and, with `legend`,
+        the key of the search overlay."""
         panel = surface.subsurface(PANEL_RECT)
         panel.fill(colors.PANEL)
         pygame.draw.line(panel, colors.PANEL_BORDER, (0, 0), (0, PANEL_RECT.height), 2)
@@ -161,6 +179,17 @@ class Renderer:
             y += 38
 
         y = PANEL_RECT.height - 14 - len(hints) * 18
+        if legend:
+            y -= 58
+            pygame.draw.line(panel, colors.PATH[:3], (margin, y + 7), (margin + 16, y + 7), 3)
+            panel.blit(self.small_font.render("Planned path", True, colors.TEXT), (margin + 26, y))
+            square = pygame.Surface((14, 14), pygame.SRCALPHA)
+            square.fill(colors.EXPLORED[:3] + (110,))
+            panel.blit(square, (margin + 1, y + 21))
+            panel.blit(
+                self.small_font.render("Explored cells", True, colors.TEXT), (margin + 26, y + 22)
+            )
+            y += 58
         for hint in hints:
             panel.blit(self.small_font.render(hint, True, colors.TEXT_MUTED), (margin, y))
             y += 18
@@ -182,11 +211,13 @@ class Renderer:
 
     # Whole frame
 
-    def draw_frame(self, surface, snake, food, title, rows, hints=(), overlay=None):
+    def draw_frame(self, surface, snake, food, title, rows, hints=(), overlay=None, search=None):
         """Draw the board and the panel. `overlay` is an optional (title,
-        subtitle) message drawn over the board, e.g. when paused."""
+        subtitle) message drawn over the board, e.g. when paused, and `search`
+        an optional (path, explored) pair for the search overlay."""
         surface.fill(colors.BACKGROUND)
-        self.draw_board(surface.subsurface(BOARD_RECT), snake, food)
-        self.draw_panel(surface, title, rows, hints)
+        path, explored = search or ((), ())
+        self.draw_board(surface.subsurface(BOARD_RECT), snake, food, path, explored)
+        self.draw_panel(surface, title, rows, hints, legend=search is not None)
         if overlay is not None:
             self.draw_overlay(surface, *overlay)

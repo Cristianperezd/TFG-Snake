@@ -60,6 +60,8 @@ def test_play_parses_all_options():
         ["--fps", "-1"],
         ["--max-steps", "0"],
         ["--agent", "human", "--headless"],
+        ["--agent", "human", "--show-path"],
+        ["--game-over-delay", "-1"],
     ],
 )
 def test_play_rejects_invalid_arguments(argv):
@@ -302,7 +304,7 @@ def test_window_and_headless_runs_give_the_same_scores():
     assert cli.play(cli.parse_args(argv)) == cli.play(cli.parse_args(argv + ["--headless"]))
 
 
-def test_game_over_delay_must_not_be_negative():
-    with pytest.raises(SystemExit):
-        cli.parse_args(["play", "--game-over-delay", "-1"])
-    assert cli.parse_args(["play", "--game-over-delay", "0"]).game_over_delay == 0
+def test_show_path_run_gives_the_same_scores():
+    argv = ["play", "--agent", "gbfs", "--games", "2", "--max-steps", "300", "--seed", "4"]
+    shown = cli.play(cli.parse_args(argv + ["--fps", "0", "--show-path"]))
+    assert shown == cli.play(cli.parse_args(argv + ["--headless"]))

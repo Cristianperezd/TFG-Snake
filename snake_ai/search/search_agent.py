@@ -14,6 +14,9 @@ class SearchAgent:
     agent is following `solution`; `counter` is the index of the next move.
 
     Subclasses set `node_class` to the node type their search is ordered by.
+
+    For drawing only, `expanded` lists the head position of every node the
+    last search expanded (it does not affect the search).
     """
 
     node_class = None
@@ -26,6 +29,7 @@ class SearchAgent:
         self.state = 0
         self.solution = None
         self.counter = 0
+        self.expanded = []
 
     def search(self):
         raise NotImplementedError
@@ -59,6 +63,17 @@ class SearchAgent:
             node = node.parent
         solution.reverse()
         return solution
+
+    def planned_path(self, head):
+        """Cells (pixel positions) the snake will visit from `head` while it
+        follows the current path to the food; empty when it has no path."""
+        if self.state != 1 or not self.solution:
+            return []
+        cells = []
+        for direction in self.solution[self.counter :]:
+            head = next_position(head, direction)
+            cells.append(head)
+        return cells
 
     def is_goal(self, node):
         return node.snake.body[0] == node.food.pos

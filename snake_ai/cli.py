@@ -5,6 +5,7 @@ Examples:
     snake-ai play --agent human                     # play with the arrow keys
                                                     # (Space pauses, Esc quits)
     snake-ai play --agent gbfs --games 5 --fps 60
+    snake-ai play --show-path                       # draw A*'s path and explored cells
     snake-ai play --games 50 --headless             # thesis evaluation, no window
     snake-ai train --timesteps 200000 --run-name quick --seed 0
     snake-ai evaluate models/quick/200000.zip --episodes 10 --no-render
@@ -91,6 +92,11 @@ def add_play_arguments(parser):
         help="stop a game after this many frames (default: no limit)",
     )
     parser.add_argument(
+        "--show-path",
+        action="store_true",
+        help="draw the path the search agent plans and the cells its search explores",
+    )
+    parser.add_argument(
         "--game-over-delay",
         type=non_negative_float,
         default=1.5,
@@ -103,6 +109,8 @@ def add_play_arguments(parser):
 def check_play_arguments(parser, args):
     if args.headless and args.agent == "human":
         parser.error("--headless cannot be used with --agent human")
+    if args.show_path and args.agent == "human":
+        parser.error("--show-path needs a search agent (gbfs or astar)")
 
 
 def make_agent(name, game):
@@ -113,11 +121,13 @@ def make_agent(name, game):
     return agent_class(agent_class.node_class(game.board, game.snake, game.food))
 
 
-def run_game(agent_name, fps=constants.FPS, render=True, max_steps=None, hud=None):
+def run_game(agent_name, fps=constants.FPS, render=True, max_steps=None, hud=None, show_path=False):
     """Play one game and return the finished `Game` (see `score` and `end_reason`).
 
-    `hud` is shown in the side panel of the window (see `Game`)."""
-    game = Game(fps=fps, render=render, hud={"agent": AGENT_NAMES[agent_name], **(hud or {})})
+    `hud` is shown in the side panel of the window and `show_path` draws the
+    agent's search (see `Game`)."""
+    hud = {"agent": AGENT_NAMES[agent_name], **(hud or {})}
+    game = Game(fps=fps, render=render, hud=hud, show_path=show_path)
     agent = make_agent(agent_name, game)
     steps = 0
     while not game.step(agent):
@@ -152,7 +162,14 @@ def play(args):
             "best": max(scores) if scores else None,
             "mean": statistics.mean(scores) if scores else None,
         }
-        game = run_game(args.agent, fps=fps, render=render, max_steps=args.max_steps, hud=hud)
+        game = run_game(
+            args.agent,
+            fps=fps,
+            render=render,
+            max_steps=args.max_steps,
+            hud=hud,
+            show_path=args.show_path,
+        )
         if game.end_reason == "window closed":
             print("Window closed, stopping.")
             break
