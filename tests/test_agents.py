@@ -1,8 +1,12 @@
 import contextlib
 import io
+import os
+import subprocess
+import sys
 
 import pytest
 
+from snake_ai import agents
 from snake_ai.game.snake import is_out_of_bounds, next_position
 from snake_ai.search.astar import AStar, AStarNode
 from snake_ai.search.gbfs import GBFS, GBFSNode
@@ -45,3 +49,22 @@ def test_astar_keeps_eating():
     lines = play_astar(seed=3, frames=600)
     final_score = int(lines[-1].split()[0])
     assert final_score >= 20
+
+
+def test_agents_can_be_used_without_the_rl_code():
+    """The browser version has no PyTorch or Gymnasium: the agent registry and
+    the game must not import `snake_ai.rl`."""
+    code = (
+        "import sys; import snake_ai.agents, snake_ai.game.game; "
+        "loaded = [m for m in sys.modules if m.startswith(('snake_ai.rl', 'gymnasium'))]; "
+        "assert not loaded, loaded"
+    )
+    env = dict(os.environ, SDL_VIDEODRIVER="dummy")
+    subprocess.run([sys.executable, "-c", code], check=True, env=env, timeout=50)
+
+
+def test_make_agent_builds_each_search_agent_with_its_node_type():
+    game = new_game(0)
+    assert type(agents.make_agent("astar", game)) is AStar
+    assert type(agents.make_agent("gbfs", game).initial_node) is GBFSNode
+    assert agents.make_agent("human", game) is None

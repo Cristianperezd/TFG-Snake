@@ -25,14 +25,10 @@ os.environ.setdefault("PYGAME_HIDE_SUPPORT_PROMPT", "1")
 import pygame  # noqa: E402
 
 from snake_ai import __version__, recording  # noqa: E402
+from snake_ai.agents import AGENT_NAMES, AGENTS, make_agent  # noqa: E402
 from snake_ai.game import constants  # noqa: E402
 from snake_ai.game.game import Game  # noqa: E402
 from snake_ai.rl import evaluate, train  # noqa: E402
-from snake_ai.search.astar import AStar  # noqa: E402
-from snake_ai.search.gbfs import GBFS  # noqa: E402
-
-AGENTS = {"human": None, "gbfs": GBFS, "astar": AStar}
-AGENT_NAMES = {"human": "Human", "gbfs": "GBFS", "astar": "A*"}
 
 
 def positive_int(value):
@@ -114,14 +110,6 @@ def check_play_arguments(parser, args):
     if args.show_path and args.agent == "human":
         parser.error("--show-path needs a search agent (gbfs or astar)")
     recording.check_arguments(parser, args)
-
-
-def make_agent(name, game):
-    """Return a search agent for `game`, or None for a human player."""
-    agent_class = AGENTS[name]
-    if agent_class is None:
-        return None
-    return agent_class(agent_class.node_class(game.board, game.snake, game.food))
 
 
 def run_game(
