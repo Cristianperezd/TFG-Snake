@@ -28,7 +28,8 @@ class Game:
 
     `hud` fills the side panel: a dict with the keys `agent` (the name shown
     as its title) and, optionally, `game` and `games` (current game and total),
-    `best` and `mean` (over the games already played, None if there are none).
+    `best` and `mean` (over the games already played, None if there are none),
+    and `fps` (False hides the measured frame rate, e.g. in recordings).
 
     When the game ends, `end_reason` says why: 'collision', 'no path' (the
     agent could not find a path to the food) or 'window closed' (the window
@@ -87,7 +88,7 @@ class Game:
             total=self.hud.get("games"),
             best=self.hud.get("best"),
             mean=self.hud.get("mean"),
-            fps=self.clock.get_fps(),
+            fps=self.clock.get_fps() if self.hud.get("fps", True) else None,
         )
 
     def draw(self, overlay=None):

@@ -44,8 +44,8 @@ class SnakeEnv(gym.Env):
     `reset()` leaves it alone.
 
     `hud` (a dict, empty by default) adds rows to the side panel: `episode`,
-    `episodes`, and `best` and `mean` over the finished episodes. It is only
-    used for drawing.
+    `episodes`, and `best` and `mean` over the finished episodes; `fps=False`
+    hides the frame rate. It is only used for drawing.
 
     In the "human" window Space pauses and Esc or closing the window sets
     `quit_requested`, for the caller to stop.
@@ -153,7 +153,7 @@ class SnakeEnv(gym.Env):
             total=self.hud.get("episodes"),
             best=self.hud.get("best"),
             mean=self.hud.get("mean"),
-            fps=self.clock.get_fps() if self.clock is not None else None,
+            fps=self.clock.get_fps() if self.clock and self.hud.get("fps", True) else None,
             label="Episode",
         )
         hints = controls.HINTS if self.render_mode == "human" else ()

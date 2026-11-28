@@ -6,6 +6,7 @@ Examples:
                                                     # (Space pauses, Esc quits)
     snake-ai play --agent gbfs --games 5 --fps 60
     snake-ai play --show-path                       # draw A*'s path and explored cells
+    snake-ai play --headless --record demo.gif      # save a game as a GIF (record extra)
     snake-ai play --games 50 --headless             # thesis evaluation, no window
     snake-ai train --timesteps 200000 --run-name quick --seed 0
     snake-ai evaluate models/quick/200000.zip --episodes 10 --no-render
@@ -23,7 +24,7 @@ os.environ.setdefault("PYGAME_HIDE_SUPPORT_PROMPT", "1")
 
 import pygame  # noqa: E402
 
-from snake_ai import __version__  # noqa: E402
+from snake_ai import __version__, recording  # noqa: E402
 from snake_ai.game import constants  # noqa: E402
 from snake_ai.game.game import Game  # noqa: E402
 from snake_ai.rl import evaluate, train  # noqa: E402
@@ -104,6 +105,7 @@ def add_play_arguments(parser):
         help="how long the game-over message stays in the window; skipped with --fps 0 "
         "and --headless (default: %(default)s)",
     )
+    recording.add_arguments(parser)
 
 
 def check_play_arguments(parser, args):
@@ -111,6 +113,7 @@ def check_play_arguments(parser, args):
         parser.error("--headless cannot be used with --agent human")
     if args.show_path and args.agent == "human":
         parser.error("--show-path needs a search agent (gbfs or astar)")
+    recording.check_arguments(parser, args)
 
 
 def make_agent(name, game):
@@ -121,16 +124,27 @@ def make_agent(name, game):
     return agent_class(agent_class.node_class(game.board, game.snake, game.food))
 
 
-def run_game(agent_name, fps=constants.FPS, render=True, max_steps=None, hud=None, show_path=False):
+def run_game(
+    agent_name,
+    fps=constants.FPS,
+    render=True,
+    max_steps=None,
+    hud=None,
+    show_path=False,
+    recorder=None,
+):
     """Play one game and return the finished `Game` (see `score` and `end_reason`).
 
     `hud` is shown in the side panel of the window and `show_path` draws the
-    agent's search (see `Game`)."""
+    agent's search (see `Game`). With `render`, `recorder` (a GifRecorder)
+    receives every frame."""
     hud = {"agent": AGENT_NAMES[agent_name], **(hud or {})}
     game = Game(fps=fps, render=render, hud=hud, show_path=show_path)
     agent = make_agent(agent_name, game)
     steps = 0
     while not game.step(agent):
+        if recorder is not None and render:
+            recorder.add_frame(game.display)
         steps += 1
         if max_steps is not None and steps >= max_steps:
             game.end_reason = "step limit"
@@ -153,7 +167,16 @@ def play(args):
         random.seed(args.seed)
 
     fps = 0 if args.headless else args.fps
-    render = not args.headless
+    # Recording needs the frames, even without a window
+    recorder = recording.from_arguments(args, fps=args.fps or constants.FPS)
+    render = not args.headless or recorder is not None
+    try:
+        return play_games(args, fps, render, recorder)
+    finally:
+        recording.save(recorder)
+
+
+def play_games(args, fps, render, recorder):
     scores = []
     for i in range(args.games):
         hud = {
@@ -161,6 +184,7 @@ def play(args):
             "games": args.games,
             "best": max(scores) if scores else None,
             "mean": statistics.mean(scores) if scores else None,
+            "fps": recorder is None,  # A changing number only makes GIFs larger
         }
         game = run_game(
             args.agent,
@@ -169,15 +193,21 @@ def play(args):
             max_steps=args.max_steps,
             hud=hud,
             show_path=args.show_path,
+            recorder=recorder,
         )
         if game.end_reason == "window closed":
             print("Window closed, stopping.")
             break
         scores.append(game.score)
         print(f"Game {i + 1}: score {game.score} ({game.end_reason})")
-        if render and not game.show_game_over(args.game_over_delay if fps > 0 else 0):
-            print("Window closed, stopping.")
-            break
+        if render:
+            delay = args.game_over_delay if fps > 0 and not args.headless else 0
+            keep_playing = game.show_game_over(delay)
+            if recorder is not None:
+                recorder.add_frame(game.display, hold_ms=recording.GAME_OVER_MS)
+            if not keep_playing:
+                print("Window closed, stopping.")
+                break
     return scores
 
 
